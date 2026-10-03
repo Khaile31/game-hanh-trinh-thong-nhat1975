@@ -1,0 +1,2419 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Hành Trình Thống Nhất — Bàn Tròn Hiệp Thương 1975</title>
+<meta name="description" content="Game Visual Novel lịch sử: nhập vai phóng viên tư liệu trẻ tại Sài Gòn tháng 11/1975, đưa tin về Hội nghị Hiệp thương Chính trị thống nhất Tổ quốc. Bản nâng cấp: ảnh tư liệu thật, túi đồ phóng viên, xuất bản tin cá nhân hóa (in/PDF)." />
+
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,600&family=Playfair+Display:ital,wght@0,600;0,700;0,900;1,600;1,700&display=swap" rel="stylesheet" />
+
+<!-- Tailwind CDN -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          paper:   { DEFAULT: '#F5F2EB', dark: '#E9E4D6', deep: '#DCD5C2' },
+          ink:     { DEFAULT: '#1F2937', soft: '#4B5563', faint: '#8A8578' },
+          flagred: { DEFAULT: '#991B1B', deep: '#6E1212', bright: '#C8102E' },
+          gold:    { DEFAULT: '#B48A2F', soft: '#C9A227', pale: '#E4CE8A' }
+        },
+        fontFamily: {
+          display: ['"Playfair Display"', 'Georgia', 'serif'],
+          body: ['"Be Vietnam Pro"', 'system-ui', 'sans-serif']
+        }
+      }
+    }
+  };
+</script>
+
+<style>
+  html, body { height: 100%; }
+  body {
+    background-color: #F5F2EB;
+    overscroll-behavior: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  /* ---- Vân giấy cũ phủ toàn app ---- */
+  .paper-grain::before {
+    content: '';
+    position: absolute; inset: 0;
+    pointer-events: none;
+    z-index: 5;
+    opacity: .55;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='140' height='140' filter='url(%23n)' opacity='0.055'/></svg>");
+  }
+  /* ---- Vignette góc ảnh tư liệu ---- */
+  .vignette::after {
+    content: '';
+    position: absolute; inset: 0;
+    pointer-events: none;
+    z-index: 4;
+    background: radial-gradient(ellipse at center, transparent 55%, rgba(31,41,55,.16) 100%);
+  }
+  /* ---- Animations ---- */
+  @keyframes shakeX {
+    0%,100% { transform: translateX(0); }
+    20% { transform: translateX(-7px); } 40% { transform: translateX(6px); }
+    60% { transform: translateX(-4px); } 80% { transform: translateX(3px); }
+  }
+  .anim-shake { animation: shakeX .45s ease; }
+  @keyframes stampIn {
+    0%   { transform: scale(2.4) rotate(-30deg); opacity: 0; }
+    55%  { transform: scale(.94) rotate(-12deg); opacity: 1; }
+    70%  { transform: scale(1.04) rotate(-12deg); }
+    100% { transform: scale(1) rotate(-12deg); opacity: 1; }
+  }
+  .anim-stamp { animation: stampIn .55s cubic-bezier(.2,.9,.3,1.2) both; }
+  @keyframes fadeOut { to { opacity: 0; } }
+  .anim-fadeout { animation: fadeOut .5s ease both; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+  .anim-fadeup { animation: fadeUp .5s ease both; }
+  @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: .25; } }
+  .anim-blink { animation: blink 1.1s steps(2) infinite; }
+  @keyframes flagWave {
+    0%,100% { transform: skewY(0deg) scaleX(1); }
+    50% { transform: skewY(-2.2deg) scaleX(.985); }
+  }
+  .anim-flag { animation: flagWave 3.4s ease-in-out infinite; transform-origin: left center; }
+  @keyframes popScore { 0% { transform: scale(1); } 45% { transform: scale(1.28); } 100% { transform: scale(1); } }
+  .anim-pop { animation: popScore .5s ease; }
+  @keyframes pulseRing { 0% { box-shadow: 0 0 0 0 rgba(153,27,27,.45);} 100% { box-shadow: 0 0 0 9px rgba(153,27,27,0);} }
+  .anim-pulse-ring { animation: pulseRing 1.4s ease-out infinite; }
+  /* ---- Chớp sáng máy ảnh ---- */
+  @keyframes cameraFlash { 0% { opacity: 0; } 12% { opacity: .95; } 100% { opacity: 0; } }
+  .anim-flash { animation: cameraFlash .5s ease-out both; }
+  /* ---- Panel nhiệm vụ: không chặn hộp thoại bên dưới ---- */
+  .task-panel {
+    position: absolute; inset: 0; z-index: 30;
+    display: flex; align-items: center; justify-content: center;
+    padding: 1rem;
+    overflow-y: auto;
+    background: rgba(245,242,235,.82);
+    backdrop-filter: blur(2px);
+    pointer-events: auto;
+  }
+  /* ---- Khung ảnh tư liệu & fallback khắc gỗ ---- */
+  .photo-frame { position: relative; overflow: hidden; background: #DCD5C2; flex-shrink: 0; }
+  .photo-frame img {
+    width: 100%; height: 100%; object-fit: cover; display: block;
+    filter: grayscale(1) sepia(.28) contrast(1.25) brightness(.94);
+  }
+  .photo-frame .photo-fallback {
+    position: absolute; inset: 0;
+    display: none;
+    flex-direction: column; align-items: center; justify-content: center; gap: .35rem;
+    text-align: center; padding: .5rem;
+    background:
+      repeating-linear-gradient(45deg, rgba(31,41,55,.06) 0 2px, transparent 2px 7px),
+      repeating-linear-gradient(-45deg, rgba(153,27,27,.05) 0 2px, transparent 2px 9px),
+      #E9E4D6;
+    color: #4B5563;
+  }
+  /* Fallback luôn hiển thị đúng ngay cả khi mất mạng hoàn toàn */
+  .photo-frame.is-fallback img { display: none !important; }
+  .photo-frame.is-fallback .photo-fallback { display: flex !important; }
+  /* ---- Scrollbar cổ điển ---- */
+  .retro-scroll::-webkit-scrollbar { width: 8px; }
+  .retro-scroll::-webkit-scrollbar-track { background: #E9E4D6; }
+  .retro-scroll::-webkit-scrollbar-thumb { background: #991B1B; border-radius: 0; }
+  /* ---- Thẻ lựa chọn hồ sơ ---- */
+  .opt-card { transition: transform .12s ease, box-shadow .12s ease, background-color .12s ease; }
+  .opt-card:hover { transform: translateY(-1px); }
+  .opt-card[aria-pressed="true"] {
+    background-color: #F3E9D2;
+    border-color: #B48A2F;
+    box-shadow: inset 0 0 0 1px #B48A2F, 3px 3px 0 rgba(31,41,55,.85);
+  }
+  .opt-card.reveal-ok { border-color: #166534; background-color: #E7EFE3; }
+  .opt-card.reveal-bad { border-color: #991B1B; background-color: #F2E2E2; }
+  /* ---- Nối mốc thời gian ---- */
+  .chip-date, .chip-event { transition: all .12s ease; cursor: pointer; }
+  .chip-date.active { background-color: #991B1B; color: #F5F2EB; border-color: #6E1212; box-shadow: 3px 3px 0 rgba(31,41,55,.85); }
+  .chip-date.done, .chip-event.done {
+    cursor: default; border-color: #166534; background-color: #E7EFE3;
+  }
+  .chip-date.done::after, .chip-event.done::after { content: ' ✓'; color: #166534; font-weight: 700; }
+  /* ---- Câu hỏi tác nghiệp ---- */
+  .q-card[aria-pressed="true"] {
+    background-color: #F3E9D2; border-color: #B48A2F;
+    box-shadow: inset 0 0 0 1px #B48A2F, 3px 3px 0 rgba(31,41,55,.85);
+  }
+  .q-card.used { opacity: .45; cursor: not-allowed; }
+  /* ---- Thẻ chọn Headline ---- */
+  .headline-card { transition: transform .12s ease, box-shadow .12s ease, background-color .12s ease; cursor: pointer; }
+  .headline-card:hover { transform: translateY(-1px); }
+  .headline-card[aria-pressed="true"] {
+    background-color: #F3E9D2;
+    border-color: #B48A2F;
+    box-shadow: inset 0 0 0 1px #B48A2F, 4px 4px 0 rgba(31,41,55,.85);
+  }
+  /* ---- Quyết sách QH VI ---- */
+  .decree-card { transition: all .15s ease; }
+  .decree-card .decree-back { display: none; }
+  .decree-card.revealed { border-color: #991B1B; background-color: #FDF0F0; }
+  .decree-card.revealed .decree-front { display: none; }
+  .decree-card.revealed .decree-back { display: block; }
+  /* ---- Tem/dấu tròn ---- */
+  .seal {
+    border: 3px double #991B1B; border-radius: 9999px;
+    color: #991B1B;
+  }
+  .dialog-text { word-break: break-word; }
+  .caret::after { content: '▌'; animation: blink .8s steps(2) infinite; color: #991B1B; }
+  /* ---- Trang báo in (màn kết) ---- */
+  .news-columns { columns: 2; column-gap: 1.5rem; column-rule: 1px solid rgba(31,41,55,.25); }
+  @media (max-width: 640px) { .news-columns { columns: 1; } }
+
+  /* ---- Nút tốc độ thoại ---- */
+  .speed-btn { transition: all .1s ease; }
+  .speed-btn.active { background-color: #991B1B; color: #F5F2EB; border-color: #6E1212; }
+
+  /* ================= CSS IN ẤN =================
+     Chỉ in trang nhật báo cá nhân hóa; ẩn toàn bộ UI game. */
+  @media print {
+    @page { size: A4 portrait; margin: 9mm; }
+    body { background: #fff !important; }
+    body * { visibility: hidden; }
+    #endScreen, #endScreen * { visibility: visible; }
+    #endScreen {
+      position: absolute !important; inset: 0 !important;
+      overflow: visible !important;
+      background: #fff !important;
+      padding: 0 !important;
+      display: block !important;
+    }
+    #endScreen .newspaper {
+      max-height: none !important; overflow: visible !important;
+      box-shadow: none !important; border-width: 2px !important;
+    }
+    .no-print { display: none !important; }
+    .photo-frame img { filter: grayscale(1) contrast(1.15); }
+  }
+</style>
+</head>
+
+<body class="font-body text-ink antialiased">
+
+<div id="app" class="h-screen w-screen overflow-hidden flex flex-col relative paper-grain">
+
+  <!-- ================= HEADER ================= -->
+  <header id="header" class="shrink-0 h-14 sm:h-16 border-b-2 border-ink bg-paper-dark/80 flex items-center gap-2 sm:gap-4 px-2 sm:px-4 relative z-20">
+    <div class="flex items-center gap-2 min-w-0">
+      <span class="text-flagred text-lg leading-none" aria-hidden="true">★</span>
+      <div class="min-w-0">
+        <h1 class="font-display font-black text-[13px] sm:text-base leading-tight truncate uppercase tracking-wide">Hành Trình Thống Nhất</h1>
+        <div id="badgeRow" class="hidden sm:flex items-center gap-1 mt-0.5" aria-label="Huy hiệu đã nhận"></div>
+      </div>
+    </div>
+
+    <nav id="progressBar" class="flex-1 flex items-center justify-center gap-1 sm:gap-2" aria-label="Tiến trình 4 chương"></nav>
+
+    <div class="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
+      <!-- Nút tốc độ thoại -->
+      <div class="hidden sm:flex items-center gap-0.5 border border-ink/40 bg-paper overflow-hidden" title="Tốc độ hiển thị thoại">
+        <button id="speedSlow" type="button" class="speed-btn active px-2 py-1 text-[9px] font-bold uppercase border-r border-ink/30" aria-label="Tốc độ chậm">Chậm</button>
+        <button id="speedMed" type="button" class="speed-btn px-2 py-1 text-[9px] font-bold uppercase border-r border-ink/30" aria-label="Tốc độ vừa">Vừa</button>
+        <button id="speedFast" type="button" class="speed-btn px-2 py-1 text-[9px] font-bold uppercase" aria-label="Tức thì">⚡</button>
+      </div>
+      <div class="text-right leading-none">
+        <div class="text-[9px] uppercase tracking-widest text-ink-faint">Điểm</div>
+        <div id="scoreView" class="font-display font-black text-base sm:text-xl text-flagred">0<span class="text-[10px] text-ink-soft font-body">/100</span></div>
+      </div>
+      <button id="btnBag" type="button" title="Túi đồ phóng viên — ảnh tư liệu đã bấm máy" aria-label="Mở túi đồ phóng viên"
+        class="relative w-9 h-9 border border-ink/60 bg-paper hover:bg-paper-deep active:translate-y-px flex items-center justify-center text-sm">
+        <span aria-hidden="true">🎒</span>
+        <span id="bagCount" class="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 px-0.5 bg-flagred text-paper text-[9px] font-bold leading-4 text-center rounded-full">0</span>
+      </button>
+      <button id="btnSfx" type="button" aria-pressed="true" title="Bật/tắt hiệu ứng âm thanh"
+        class="w-9 h-9 border border-ink/60 bg-paper hover:bg-paper-deep active:translate-y-px flex items-center justify-center text-sm">
+        <span id="sfxIcon" aria-hidden="true">🔔</span><span class="sr-only">Hiệu ứng âm thanh</span>
+      </button>
+      <button id="btnBgm" type="button" aria-pressed="true" title="Bật/tắt nhạc nền"
+        class="w-9 h-9 border border-ink/60 bg-paper hover:bg-paper-deep active:translate-y-px flex items-center justify-center text-sm">
+        <span id="bgmIcon" aria-hidden="true">♪</span><span class="sr-only">Nhạc nền</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ================= SÂN KHẤU ================= -->
+  <main id="stage" class="relative flex-1 min-h-0 overflow-hidden vignette bg-paper">
+
+    <!-- ---------- SCENE MÀN 1: SPLIT-VIEW ĐỐI CHIẾU HAI CHÍNH THỂ ---------- -->
+    <section id="scene-ch1" class="scene absolute inset-0 hidden items-center justify-center p-3 sm:p-6" aria-label="Đối chiếu tư liệu ảnh hai miền Bắc Nam">
+      <div class="w-full h-full max-w-5xl min-h-0 grid grid-cols-[1fr_auto_1fr] gap-2 sm:gap-5 items-stretch">
+        <figure class="flex flex-col bg-paper-dark border-2 border-ink p-1.5 sm:p-2 shadow-[4px_4px_0_rgba(31,41,55,.8)] min-h-0">
+          <div id="ph-hanoi" class="flex-1 min-h-0"></div>
+          <figcaption class="shrink-0 pt-1.5 mt-1.5 border-t border-ink/25 text-center text-[10px] sm:text-xs leading-tight text-ink-soft">
+            <b class="text-ink uppercase">Miền Bắc · VNDCCH</b><br/>
+            <span class="text-flagred font-bold">Việt Nam Dân chủ Cộng hòa</span><br/>
+            Hà Nội — Thủ đô, trái tim thành trì xã hội chủ nghĩa.
+          </figcaption>
+        </figure>
+
+        <div class="flex flex-col items-center justify-center gap-1.5 px-0.5" aria-hidden="true">
+          <span class="font-display font-black text-flagred text-xl sm:text-3xl">⇄</span>
+          <span class="hidden sm:block text-[10px] uppercase tracking-widest text-ink-faint text-center leading-tight">hai chính thể<br/>trên một<br/>dải đất</span>
+          <span class="flex-1 w-0 border-l-2 border-dashed border-flagred/70 my-1"></span>
+          <span class="text-[10px] font-bold text-flagred">17°</span>
+        </div>
+
+        <figure class="flex flex-col bg-paper-dark border-2 border-ink p-1.5 sm:p-2 shadow-[4px_4px_0_rgba(31,41,55,.8)] min-h-0">
+          <div id="ph-saigon" class="flex-1 min-h-0"></div>
+          <figcaption class="shrink-0 pt-1.5 mt-1.5 border-t border-ink/25 text-center text-[10px] sm:text-xs leading-tight text-ink-soft">
+            <b class="text-ink uppercase">Miền Nam · CHMNVN</b><br/>
+            <span class="text-flagred font-bold">Chính phủ Cách mạng Lâm thời Cộng hòa miền Nam Việt Nam</span><br/>
+            Sài Gòn sau ngày giải phóng — thành phố vừa im tiếng súng.
+          </figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- ---------- SCENE MÀN 2: HỘI TRƯỜNG + ẢNH BÀN TRÒN HIỆP THƯƠNG ---------- -->
+    <section id="scene-ch2" class="scene absolute inset-0 hidden items-center justify-center p-3 sm:p-6" aria-label="Hội trường Hội nghị Hiệp thương và ảnh tư liệu bàn tròn">
+      <svg viewBox="0 0 820 440" class="w-full h-full max-h-full" role="img" aria-label="Hội trường Hội nghị Hiệp thương với bàn tròn, cờ và biểu ngữ">
+        <rect x="10" y="10" width="800" height="420" fill="#EDE7D8" stroke="#1F2937" stroke-width="2"/>
+        <rect x="120" y="34" width="580" height="66" fill="#991B1B" stroke="#6E1212" stroke-width="2"/>
+        <rect x="126" y="40" width="568" height="54" fill="none" stroke="#E4CE8A" stroke-width="1.5"/>
+        <text x="410" y="62" text-anchor="middle" font-family="'Playfair Display',serif" font-weight="700" font-size="17" fill="#F5F2EB" letter-spacing="1.5">HỘI NGHỊ HIỆP THƯƠNG CHÍNH TRỊ THỐNG NHẤT TỔ QUỐC</text>
+        <text x="410" y="85" text-anchor="middle" font-family="'Be Vietnam Pro',sans-serif" font-size="13" fill="#E4CE8A">15 – 21/11/1975 · Sài Gòn</text>
+        <g transform="translate(60,120)">
+          <rect x="-3" y="-14" width="4" height="180" fill="#4B5563"/>
+          <g class="anim-flag"><rect width="86" height="54" fill="#C8102E" stroke="#1F2937" stroke-width="1.5"/>
+          <g transform="translate(43,27) scale(15)"><polygon points="0,-1 0.2245,-0.309 0.951,-0.309 0.363,0.118 0.588,0.809 0,0.382 -0.588,0.809 -0.363,0.118 -0.951,-0.309 -0.2245,-0.309" fill="#FFD700"/></g></g>
+        </g>
+        <g transform="translate(760,120) scale(-1,1)">
+          <rect x="-3" y="-14" width="4" height="180" fill="#4B5563"/>
+          <g class="anim-flag" style="animation-delay:-1.2s"><rect width="86" height="27" fill="#C8102E" stroke="#1F2937" stroke-width="1.5"/><rect y="27" width="86" height="27" fill="#005BAA" stroke="#1F2937" stroke-width="1.5"/>
+          <g transform="translate(43,27) scale(12)"><polygon points="0,-1 0.2245,-0.309 0.951,-0.309 0.363,0.118 0.588,0.809 0,0.382 -0.588,0.809 -0.363,0.118 -0.951,-0.309 -0.2245,-0.309" fill="#FFD700" stroke="#1F2937" stroke-width=".05"/></g></g>
+        </g>
+        <ellipse cx="410" cy="330" rx="255" ry="66" fill="#DCD5C2" stroke="#1F2937" stroke-width="2.5"/>
+        <ellipse cx="410" cy="322" rx="255" ry="66" fill="#E9E4D6" stroke="#1F2937" stroke-width="2"/>
+        <ellipse cx="410" cy="322" rx="196" ry="46" fill="none" stroke="#B48A2F" stroke-width="1.5" stroke-dasharray="5 5"/>
+        <g fill="#F5F2EB" stroke="#1F2937" stroke-width="1.5">
+          <rect x="330" y="300" width="44" height="30" transform="rotate(-8 352 315)"/>
+          <rect x="392" y="302" width="44" height="30" transform="rotate(4 414 317)"/>
+          <rect x="452" y="299" width="44" height="30" transform="rotate(9 474 314)"/>
+        </g>
+        <circle cx="410" cy="292" r="7" fill="#1F2937"/>
+        <g fill="#4B5563">
+          <rect x="235" y="238" width="26" height="34" rx="4"/><rect x="330" y="228" width="26" height="34" rx="4"/>
+          <rect x="465" y="228" width="26" height="34" rx="4"/><rect x="560" y="238" width="26" height="34" rx="4"/>
+        </g>
+        <text x="410" y="416" text-anchor="middle" font-family="'Be Vietnam Pro',sans-serif" font-size="12" fill="#8A8578" font-style="italic">"Nước Việt Nam là một — Dân tộc Việt Nam là một" · Hồ Chí Minh</text>
+      </svg>
+      <!-- Ảnh tư liệu bàn tròn hiệp thương -->
+      <figure class="absolute bottom-1.5 left-1/2 -translate-x-1/2 w-44 sm:w-64 bg-paper border-2 border-ink p-1 shadow-[4px_4px_0_rgba(31,41,55,.85)] z-10">
+        <div id="ph-hoinghi" class="h-20 sm:h-28"></div>
+        <figcaption class="text-[8px] sm:text-[9px] text-center text-ink-soft pt-1 leading-tight">Bàn tròn Hiệp thương giữa Sài Gòn, 11/1975 — tư liệu ảnh</figcaption>
+      </figure>
+    </section>
+
+    <!-- ---------- SCENE MÀN 3: BÌNH MINH + ẢNH CỬ TRI ĐI BẦU ---------- -->
+    <section id="scene-ch3" class="scene absolute inset-0 hidden items-center justify-center p-3 sm:p-6" aria-label="Ngày hội bầu cử với ảnh tư liệu cử tri bỏ phiếu">
+      <svg viewBox="0 0 820 440" class="w-full h-full max-h-full" role="img" aria-label="Bình minh ngày hội bầu cử, dây cờ và dòng người đi bầu">
+        <defs>
+          <linearGradient id="dawn" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#F5E9D0"/><stop offset="1" stop-color="#EDE7D8"/>
+          </linearGradient>
+        </defs>
+        <rect x="10" y="10" width="800" height="420" fill="url(#dawn)" stroke="#1F2937" stroke-width="2"/>
+        <circle cx="410" cy="112" r="54" fill="#FFD700" opacity=".8"/>
+        <g transform="translate(410,112) scale(28)"><polygon points="0,-1 0.2245,-0.309 0.951,-0.309 0.363,0.118 0.588,0.809 0,0.382 -0.588,0.809 -0.363,0.118 -0.951,-0.309 -0.2245,-0.309" fill="#C8102E"/></g>
+        <text x="410" y="42" text-anchor="middle" font-family="'Playfair Display',serif" font-weight="900" font-size="24" fill="#991B1B" letter-spacing="3">NGÀY HỘI NON SÔNG</text>
+        <text x="410" y="63" text-anchor="middle" font-family="'Be Vietnam Pro',sans-serif" font-size="12.5" fill="#4B5563">Tiến tới Tổng tuyển cử 25/4/1976 — bầu Quốc hội chung khóa VI</text>
+        <path d="M 40 90 Q 410 150 780 90" fill="none" stroke="#4B5563" stroke-width="1.5"/>
+        <g>
+          <polygon points="140,106 160,106 150,124" fill="#C8102E"/><polygon points="240,118 260,118 250,136" fill="#FFD700"/>
+          <polygon points="340,127 360,127 350,145" fill="#005BAA"/><polygon points="440,129 460,129 450,147" fill="#C8102E"/>
+          <polygon points="540,124 560,124 550,142" fill="#FFD700"/><polygon points="640,113 660,113 650,131" fill="#005BAA"/>
+        </g>
+        <g fill="#1F2937" opacity=".8">
+          <g transform="translate(110,300)"><circle cx="0" cy="0" r="11"/><path d="M-13,12 Q0,44 13,12 L11,64 L-11,64 Z"/></g>
+          <g transform="translate(165,308)"><circle cx="0" cy="0" r="9.5"/><path d="M-11,10 Q0,38 11,10 L9,56 L-9,56 Z"/></g>
+          <g transform="translate(640,300)"><circle cx="0" cy="0" r="11"/><path d="M-13,12 Q0,44 13,12 L11,64 L-11,64 Z"/></g>
+          <g transform="translate(695,308)"><circle cx="0" cy="0" r="9.5"/><path d="M-11,10 Q0,38 11,10 L9,56 L-9,56 Z"/></g>
+        </g>
+        <text x="410" y="416" text-anchor="middle" font-family="'Be Vietnam Pro',sans-serif" font-size="12" fill="#8A8578">98,77% cử tri cả nước đã đi bầu — hơn 23 triệu lá phiếu, một ý chí</text>
+      </svg>
+      <!-- Ảnh tư liệu cử tri bỏ phiếu -->
+      <figure class="absolute inset-x-0 top-1/2 -translate-y-1/2 mx-auto w-52 sm:w-80 bg-paper border-2 border-ink p-1.5 shadow-[5px_5px_0_rgba(31,41,55,.85)] z-10 rotate-[-1deg]">
+        <div id="ph-baucu" class="h-28 sm:h-44"></div>
+        <figcaption class="text-[9px] sm:text-[10px] text-center text-ink-soft pt-1 leading-tight">Cử tri nô nức ngày hội bầu cử Quốc hội — tư liệu ảnh</figcaption>
+      </figure>
+    </section>
+
+    <!-- ---------- SCENE MÀN 3B: KỲ HỌP QUỐC HỘI KHÓA VI ---------- -->
+    <section id="scene-ch3b" class="scene absolute inset-0 hidden items-center justify-center p-3 sm:p-6" aria-label="Kỳ họp thứ nhất Quốc hội khóa VI tháng 6-7/1976">
+      <svg viewBox="0 0 820 440" class="w-full h-full max-h-full" role="img" aria-label="Hội trường Quốc hội tháng 7/1976 — các quyết sách lịch sử">
+        <defs>
+          <linearGradient id="hallGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#1F2937"/><stop offset="1" stop-color="#374151"/>
+          </linearGradient>
+        </defs>
+        <rect x="10" y="10" width="800" height="420" fill="#EDE7D8" stroke="#1F2937" stroke-width="2"/>
+        <!-- Phông sân khấu -->
+        <rect x="140" y="20" width="540" height="100" fill="url(#hallGrad)" stroke="#B48A2F" stroke-width="2"/>
+        <text x="410" y="52" text-anchor="middle" font-family="'Playfair Display',serif" font-weight="900" font-size="18" fill="#E4CE8A" letter-spacing="2">KỲ HỌP THỨ NHẤT</text>
+        <text x="410" y="76" text-anchor="middle" font-family="'Be Vietnam Pro',sans-serif" font-size="14" fill="#F5F2EB">Quốc hội nước CHXHCN Việt Nam — Khóa VI</text>
+        <text x="410" y="98" text-anchor="middle" font-family="'Be Vietnam Pro',sans-serif" font-size="12" fill="#C9A227">24 tháng 6 — 3 tháng 7 năm 1976 · Hà Nội</text>
+        <!-- Cờ đỏ sao vàng lớn ở giữa -->
+        <g transform="translate(370,130)">
+          <rect width="80" height="54" fill="#C8102E" stroke="#B48A2F" stroke-width="2"/>
+          <g transform="translate(40,27) scale(14)"><polygon points="0,-1 0.2245,-0.309 0.951,-0.309 0.363,0.118 0.588,0.809 0,0.382 -0.588,0.809 -0.363,0.118 -0.951,-0.309 -0.2245,-0.309" fill="#FFD700"/></g>
+        </g>
+        <!-- Hàng ghế đại biểu -->
+        <g fill="#DCD5C2" stroke="#4B5563" stroke-width="1">
+          <rect x="60" y="210" width="700" height="16" rx="2"/>
+          <rect x="60" y="240" width="700" height="16" rx="2"/>
+          <rect x="60" y="270" width="700" height="16" rx="2"/>
+          <rect x="60" y="300" width="700" height="16" rx="2"/>
+        </g>
+        <!-- Đại biểu -->
+        <g fill="#4B5563" opacity=".7">
+          <circle cx="100" cy="206" r="8"/><circle cx="130" cy="206" r="8"/><circle cx="160" cy="206" r="8"/><circle cx="190" cy="206" r="8"/>
+          <circle cx="250" cy="206" r="8"/><circle cx="280" cy="206" r="8"/><circle cx="320" cy="206" r="8"/>
+          <circle cx="400" cy="206" r="9" fill="#991B1B"/><circle cx="440" cy="206" r="9" fill="#991B1B"/>
+          <circle cx="520" cy="206" r="8"/><circle cx="560" cy="206" r="8"/><circle cx="600" cy="206" r="8"/>
+          <circle cx="660" cy="206" r="8"/><circle cx="700" cy="206" r="8"/>
+        </g>
+        <text x="410" y="415" text-anchor="middle" font-family="'Be Vietnam Pro',sans-serif" font-size="11.5" fill="#8A8578" font-style="italic">500 đại biểu từ hai miền — lần đầu tiên họp chung trong ngôi nhà thống nhất</text>
+      </svg>
+    </section>
+
+    <!-- ---------- PANEL NHIỆM VỤ MÀN 1 ---------- -->
+    <div id="panel-ch1" class="task-panel hidden retro-scroll" role="group" aria-label="Nhiệm vụ phân loại hồ sơ Nghị quyết 24">
+      <div class="w-full max-w-3xl bg-paper border-2 border-ink shadow-[6px_6px_0_rgba(31,41,55,.85)] p-4 sm:p-6 anim-fadeup my-auto">
+        <div class="flex items-start justify-between gap-3 border-b border-ink/30 pb-3 mb-4">
+          <div>
+            <div class="text-[10px] uppercase tracking-[.25em] text-flagred font-bold">Nhiệm vụ 01 · Hồ sơ Nghị quyết Trung ương 24 (9/1975)</div>
+            <h2 class="font-display font-black text-xl sm:text-2xl mt-1">VÌ SAO PHẢI THỐNG NHẤT VỀ MẶT NHÀ NƯỚC?</h2>
+          </div>
+          <div class="seal shrink-0 w-14 h-14 flex items-center justify-center text-center text-[8px] font-bold leading-tight rotate-[-8deg]">HỒ SƠ<br>MẬT</div>
+        </div>
+        <p class="text-sm text-ink-soft mb-1">Chọn <b class="text-flagred">đúng 2 luận điểm</b> giải thích vì sao thống nhất đất nước về mặt Nhà nước là nhiệm vụ cấp bách — rồi bấm <b>Lưu vào hồ sơ</b>.</p>
+        <p id="ch1Counter" class="text-xs text-ink-faint mb-3">Đã chọn: 0/2</p>
+        <div id="ch1Options" class="space-y-2.5"></div>
+        <div class="flex items-center justify-between gap-3 mt-5">
+          <p id="ch1Hint" class="text-xs text-flagred font-semibold min-h-[1em]" role="status"></p>
+          <button id="ch1Submit" type="button"
+            class="shrink-0 px-5 py-2.5 bg-flagred text-paper font-bold uppercase tracking-wider text-sm border-2 border-flagred-deep hover:bg-flagred-deep active:translate-y-px shadow-[3px_3px_0_rgba(31,41,55,.85)]">
+            Lưu vào hồ sơ ✒
+          </button>
+          <button id="ch1CaptureBtn" type="button"
+            class="hidden shrink-0 px-5 py-2.5 bg-flagred text-paper font-bold uppercase tracking-wider text-sm border-2 border-flagred-deep hover:bg-flagred-deep active:translate-y-px shadow-[3px_3px_0_rgba(31,41,55,.85)] anim-pulse-ring">
+            Bấm máy 📸 — Lưu ảnh tư liệu vào túi đồ
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ---------- PANEL NHIỆM VỤ MÀN 2: CHỌN CÂU HỎI + PHỎNG VẤN ---------- -->
+    <div id="panel-ch2" class="task-panel hidden retro-scroll" role="group" aria-label="Nhiệm vụ phỏng vấn hai trưởng đoàn">
+      <div class="w-full max-w-3xl bg-paper border-2 border-ink shadow-[6px_6px_0_rgba(31,41,55,.85)] p-4 sm:p-6 anim-fadeup my-auto">
+        <div class="flex items-start justify-between gap-3 border-b border-ink/30 pb-3 mb-4">
+          <div>
+            <div class="text-[10px] uppercase tracking-[.25em] text-flagred font-bold">Nhiệm vụ 02 · Bàn tròn hiệp thương</div>
+            <h2 class="font-display font-black text-xl sm:text-2xl mt-1">SỔ TAY PHỎNG VẤN</h2>
+          </div>
+          <div class="seal shrink-0 w-14 h-14 flex items-center justify-center text-center text-[8px] font-bold leading-tight rotate-[7deg]">SỔ<br>TAY</div>
+        </div>
+
+        <!-- Bước 1: chọn câu hỏi tác nghiệp -->
+        <div class="mb-4">
+          <div class="text-[10px] uppercase tracking-[.25em] text-ink-faint font-bold mb-2">① Chọn câu hỏi tác nghiệp của bạn</div>
+          <div id="ch2Questions" class="space-y-2"></div>
+          <p id="ch2QHint" class="text-xs text-flagred font-semibold mt-2 min-h-[1em]" role="status"></p>
+        </div>
+
+        <!-- Bước 2: chọn đại biểu để phỏng vấn -->
+        <div>
+          <div class="text-[10px] uppercase tracking-[.25em] text-ink-faint font-bold mb-2">② Nhấp vào đại biểu để phỏng vấn</div>
+          <div class="grid sm:grid-cols-2 gap-4">
+            <div id="card-tc" role="button" tabindex="0" class="delegate-card text-left bg-paper-dark border-2 border-ink p-3 hover:bg-paper-deep cursor-pointer transition shadow-[4px_4px_0_rgba(31,41,55,.8)]" aria-label="Phỏng vấn đồng chí Trường Chinh, trưởng đoàn miền Bắc">
+              <div class="flex items-center gap-3 pointer-events-none">
+                <div id="por-tc" class="w-16 h-16 shrink-0"></div>
+                <div>
+                  <div class="text-[9px] uppercase tracking-widest text-flagred font-bold">Trưởng đoàn miền Bắc · VNDCCH</div>
+                  <div class="font-display font-black text-lg leading-tight">Đ/c TRƯỜNG CHINH</div>
+                  <div class="text-[11px] text-ink-soft">Chủ tịch UBTV Quốc hội VNDCCH</div>
+                </div>
+              </div>
+              <div class="delegate-status mt-3 text-xs font-bold text-ink-faint border-t border-ink/20 pt-2 pointer-events-none">▸ Chọn câu hỏi trước, rồi nhấp để phỏng vấn</div>
+            </div>
+            <div id="card-ph" role="button" tabindex="0" class="delegate-card text-left bg-paper-dark border-2 border-ink p-3 hover:bg-paper-deep cursor-pointer transition shadow-[4px_4px_0_rgba(31,41,55,.8)]" aria-label="Phỏng vấn đồng chí Phạm Hùng, trưởng đoàn miền Nam">
+              <div class="flex items-center gap-3 pointer-events-none">
+                <div id="por-ph" class="w-16 h-16 shrink-0"></div>
+                <div>
+                  <div class="text-[9px] uppercase tracking-widest text-flagred font-bold">Trưởng đoàn miền Nam · CHMNVN</div>
+                  <div class="font-display font-black text-lg leading-tight">Đ/c PHẠM HÙNG</div>
+                  <div class="text-[11px] text-ink-soft">Ủy viên Bộ Chính trị</div>
+                </div>
+              </div>
+              <div class="delegate-status mt-3 text-xs font-bold text-ink-faint border-t border-ink/20 pt-2 pointer-events-none">▸ Chọn câu hỏi trước, rồi nhấp để phỏng vấn</div>
+            </div>
+          </div>
+        </div>
+        <p id="ch2Hint" class="text-xs text-flagred font-semibold mt-4 min-h-[1em]" role="status"></p>
+
+        <!-- Nút bấm máy khoảnh khắc lịch sử Màn 2 -->
+        <div id="ch2CaptureWrapper" class="hidden mt-4 pt-3 border-t-2 border-ink/30 text-center anim-fadeup">
+          <p class="text-xs sm:text-sm text-ink-soft mb-2 font-medium">Hội nghị Hiệp thương toàn thắng! Hãy ghi lại toàn bộ tư liệu lịch sử:</p>
+          <button id="ch2CaptureBtn" type="button"
+            class="w-full py-3 px-4 bg-flagred text-paper font-black uppercase tracking-wider text-sm sm:text-base border-2 border-flagred-deep hover:bg-flagred-deep active:translate-y-px shadow-[4px_4px_0_rgba(31,41,55,.85)] anim-pulse-ring">
+            Bấm máy khoảnh khắc lịch sử 📸 — Lưu ảnh Hội nghị & Chân dung vào túi đồ
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ---------- PANEL NHIỆM VỤ MÀN 3 ---------- -->
+    <div id="panel-ch3" class="task-panel hidden retro-scroll" role="group" aria-label="Nhiệm vụ nối mốc thời gian với sự kiện">
+      <div class="w-full max-w-4xl bg-paper border-2 border-ink shadow-[6px_6px_0_rgba(31,41,55,.85)] p-4 sm:p-6 anim-fadeup my-auto">
+        <div class="flex items-start justify-between gap-3 border-b border-ink/30 pb-3 mb-4">
+          <div>
+            <div class="text-[10px] uppercase tracking-[.25em] text-flagred font-bold">Nhiệm vụ 03 · Dòng thời gian tư liệu</div>
+            <h2 class="font-display font-black text-xl sm:text-2xl mt-1">SẮP XẾP DÒNG LỊCH SỬ</h2>
+          </div>
+          <div class="seal shrink-0 w-14 h-14 flex items-center justify-center text-center text-[8px] font-bold leading-tight rotate-[-6deg]">CHÍNH<br>XÁC</div>
+        </div>
+        <p class="text-sm text-ink-soft mb-4">Nhấp một <b>mốc thời gian</b> (cột trái), rồi nhấp <b>sự kiện</b> tương ứng (cột phải). Cặp đúng sẽ tự khóa lại. Đã ghép đúng: <b id="ch3Matched" class="text-flagred">0/4</b></p>
+        <div class="grid md:grid-cols-2 gap-4 sm:gap-6">
+          <div>
+            <div class="text-[10px] uppercase tracking-[.25em] text-ink-faint font-bold mb-2 border-b border-ink/20 pb-1">Mốc thời gian</div>
+            <div id="ch3Dates" class="space-y-2.5"></div>
+          </div>
+          <div>
+            <div class="text-[10px] uppercase tracking-[.25em] text-ink-faint font-bold mb-2 border-b border-ink/20 pb-1">Sự kiện</div>
+            <div id="ch3Events" class="space-y-2.5"></div>
+          </div>
+        </div>
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-3 mt-4">
+          <p id="ch3Hint" class="text-xs text-flagred font-semibold min-h-[1em]" role="status"></p>
+          <button id="ch3CaptureBtn" type="button"
+            class="hidden shrink-0 w-full sm:w-auto px-5 py-2.5 bg-flagred text-paper font-bold uppercase tracking-wider text-sm border-2 border-flagred-deep hover:bg-flagred-deep active:translate-y-px shadow-[3px_3px_0_rgba(31,41,55,.85)] anim-pulse-ring">
+            Bấm máy 📸 — Ngày hội bầu cử
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ---------- PANEL MÀN 3B: KỲ HỌP QUỐC HỘI KHÓA VI — QUYẾT SÁCH LỊCH SỬ ---------- -->
+    <div id="panel-ch3b" class="task-panel hidden retro-scroll" role="group" aria-label="Nhiệm vụ khám phá các quyết sách Kỳ họp Quốc hội khóa VI">
+      <div class="w-full max-w-3xl bg-paper border-2 border-ink shadow-[6px_6px_0_rgba(31,41,55,.85)] p-4 sm:p-6 anim-fadeup my-auto">
+        <div class="flex items-start justify-between gap-3 border-b border-ink/30 pb-3 mb-4">
+          <div>
+            <div class="text-[10px] uppercase tracking-[.25em] text-flagred font-bold">Nhiệm vụ 04 · Kỳ họp QH khóa VI (24/6 – 3/7/1976)</div>
+            <h2 class="font-display font-black text-xl sm:text-2xl mt-1">NHỮNG QUYẾT SÁCH LỊCH SỬ</h2>
+          </div>
+          <div class="seal shrink-0 w-14 h-14 flex items-center justify-center text-center text-[8px] font-bold leading-tight rotate-[5deg]">VĂN<br>KIỆN</div>
+        </div>
+        <p class="text-sm text-ink-soft mb-4">Nhấp vào từng thẻ để khám phá 5 quyết sách trọng đại của kỳ họp thứ nhất Quốc hội khóa VI — rồi bấm máy ghi lại khoảnh khắc lịch sử!</p>
+        <div id="decreeCards" class="grid sm:grid-cols-2 gap-3 mb-4"></div>
+        <div class="flex items-center justify-between gap-3 mt-4">
+          <p id="ch3bHint" class="text-xs text-flagred font-semibold min-h-[1em]" role="status">Khám phá tất cả 5 quyết sách để mở khóa bước tiếp theo.</p>
+          <button id="ch3bCaptureBtn" type="button" disabled
+            class="shrink-0 px-5 py-2.5 bg-paper-deep text-ink-faint font-bold uppercase tracking-wider text-sm border-2 border-ink/40 cursor-not-allowed opacity-50 shadow-[3px_3px_0_rgba(31,41,55,.4)]">
+            Bấm máy 📸
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ---------- PANEL CHỌN HEADLINE ---------- -->
+    <div id="panel-headline" class="task-panel hidden retro-scroll" role="group" aria-label="Chọn tiêu đề bản tin xuất bản">
+      <div class="w-full max-w-3xl bg-paper border-2 border-ink shadow-[6px_6px_0_rgba(31,41,55,.85)] p-4 sm:p-6 anim-fadeup my-auto">
+        <div class="flex items-start justify-between gap-3 border-b border-ink/30 pb-3 mb-4">
+          <div>
+            <div class="text-[10px] uppercase tracking-[.25em] text-flagred font-bold">Bước cuối · Bàn biên tập</div>
+            <h2 class="font-display font-black text-xl sm:text-2xl mt-1">CHỌN TIÊU ĐỀ BẢN TIN</h2>
+          </div>
+          <div class="seal shrink-0 w-14 h-14 flex items-center justify-center text-center text-[8px] font-bold leading-tight rotate-[-10deg]">XUẤT<br>BẢN</div>
+        </div>
+        <p class="text-sm text-ink-soft mb-4">Là phóng viên, bạn phải chọn góc nhìn để giật tít bản tin lịch sử này. Tiêu đề được chọn sẽ in lên trang nhật báo cuối game.</p>
+        <div id="headlineOptions" class="space-y-3 mb-5"></div>
+        <div class="flex items-center justify-between gap-3">
+          <p id="headlineHint" class="text-xs text-flagred font-semibold min-h-[1em]" role="status"></p>
+          <button id="btnPublish" type="button" disabled
+            class="shrink-0 px-6 py-3 bg-paper-deep text-ink-faint font-black uppercase tracking-wider text-sm border-2 border-ink/40 cursor-not-allowed opacity-60 shadow-[3px_3px_0_rgba(31,41,55,.4)]">
+            Xuất bản ★
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ---------- DẤU HUY HIỆU ---------- -->
+    <div id="stampLayer" class="hidden absolute inset-0 z-40 pointer-events-none flex items-center justify-center">
+      <div id="stampCard" class="seal bg-paper/90 w-44 h-44 sm:w-52 sm:h-52 flex flex-col items-center justify-center text-center p-4">
+        <span class="text-xl leading-none mb-1" aria-hidden="true">★</span>
+        <span class="font-display font-black text-base sm:text-lg leading-snug uppercase" id="stampTitle">HUY HIỆU</span>
+        <span class="text-[9px] uppercase tracking-[.3em] mt-1.5">Huy hiệu chương</span>
+      </div>
+    </div>
+  </main>
+
+  <!-- ================= DIALOG BOX ================= -->
+  <footer id="dialogBox" class="shrink-0 relative z-20 px-2 sm:px-6 pb-2 sm:pb-4 pt-4 pointer-events-none">
+    <div class="dialog-card max-w-5xl mx-auto bg-paper border border-ink shadow-[4px_4px_0_rgba(31,41,55,.9)] relative pointer-events-auto">
+      <div id="speakerTag" class="hidden absolute -top-3.5 left-3 sm:left-5 bg-flagred text-paper text-[10px] sm:text-xs font-bold px-3 py-1 border border-flagred-deep uppercase tracking-wider max-w-[92%] truncate"></div>
+      <div id="choiceArea" class="hidden px-4 sm:px-6 pt-5 pb-2 space-y-2 max-h-56 overflow-y-auto retro-scroll" role="group" aria-label="Lựa chọn của người chơi"></div>
+      <div id="dialogClickZone" class="px-4 sm:px-6 pt-5 pb-3 cursor-pointer select-none" role="button" tabindex="0" aria-label="Hộp thoại — nhấp hoặc bấm Enter để tiếp tục">
+        <p id="dialogText" class="dialog-text font-display text-[15px] sm:text-lg leading-relaxed min-h-[4.6em] max-h-[9.5em] overflow-y-auto retro-scroll"></p>
+      </div>
+      <div class="flex items-center justify-between px-4 sm:px-6 pb-3">
+        <span id="idleDots" class="text-ink-faint text-xs tracking-[.4em] hidden">···</span>
+        <span class="text-[10px] text-ink-faint hidden sm:block">Enter / Space: tiếp tục · Nhấp thoại: tua nhanh</span>
+        <button id="btnContinue" type="button"
+          class="hidden ml-auto px-4 py-1.5 bg-ink text-paper text-xs sm:text-sm font-bold uppercase tracking-widest border border-ink hover:bg-flagred hover:border-flagred active:translate-y-px">
+          Tiếp tục <span class="anim-blink inline-block">▸</span>
+        </button>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ================= CHỚP SÁNG MÁY ẢNH ================= -->
+  <div id="flashLayer" class="fixed inset-0 z-[70] pointer-events-none bg-white opacity-0" aria-hidden="true"></div>
+
+  <!-- ================= TÚI ĐỒ PHÓNG VIÊN ================= -->
+  <aside id="bagPanel" class="fixed right-0 top-14 sm:top-16 bottom-0 w-72 max-w-[86vw] z-40 bg-paper border-l-2 border-ink shadow-[-6px_0_18px_rgba(31,41,55,.25)] translate-x-full transition-transform duration-300 flex flex-col" aria-label="Túi đồ phóng viên">
+    <div class="shrink-0 flex items-center justify-between px-3 py-2.5 bg-paper-dark border-b-2 border-ink">
+      <h2 class="font-display font-black uppercase text-sm">🎒 Túi đồ phóng viên</h2>
+      <button id="btnCloseBag" type="button" aria-label="Đóng túi đồ" class="w-7 h-7 border border-ink bg-paper hover:bg-flagred hover:text-paper font-bold leading-none">✕</button>
+    </div>
+    <div id="bagList" class="flex-1 overflow-y-auto retro-scroll p-3 space-y-3"></div>
+    <div class="shrink-0 px-3 py-2 border-t border-ink/30 text-[10px] text-ink-faint">Mỗi lần bấm máy thành công, một bức ảnh tư liệu được lưu vào đây và lên trang báo cuối game.</div>
+  </aside>
+
+  <!-- ================= MÀN GIỚI THIỆU ================= -->
+  <div id="introScreen" class="fixed inset-0 z-50 bg-paper flex items-center justify-center p-4 paper-grain">
+    <div class="relative w-full max-w-2xl bg-paper border-2 border-ink shadow-[8px_8px_0_rgba(153,27,27,.9)] p-6 sm:p-10 anim-fadeup retro-scroll max-h-full overflow-y-auto">
+      <div class="text-center border-b-2 border-double border-ink pb-5">
+        <div class="text-flagred text-2xl leading-none" aria-hidden="true">★ ★ ★</div>
+        <div class="text-[10px] sm:text-xs uppercase tracking-[.35em] text-ink-soft mt-2">Game tư liệu tương tác · Lịch sử Đảng CSVN</div>
+        <h1 class="font-display font-black text-3xl sm:text-5xl uppercase mt-2 leading-tight">Hành Trình<br class="sm:hidden"/> Thống Nhất</h1>
+        <div class="mt-2 font-display italic text-base sm:text-lg text-flagred font-semibold">Bàn Tròn Hiệp Thương 1975</div>
+      </div>
+
+      <div class="mt-5 text-sm sm:text-[15px] leading-relaxed text-ink-soft px-1 py-2">
+        <p><b class="text-ink">Vai diễn:</b> Bạn là một <b>phóng viên ảnh – tư liệu trẻ</b> tác nghiệp tại Sài Gòn, tháng 11 năm 1975. Sáu tháng sau ngày giải phóng miền Nam, non sông đã liền một dải nhưng đất nước vẫn còn <i>hai chính thể</i>: <b>Việt Nam Dân chủ Cộng hòa</b> ở miền Bắc và <b>Chính phủ Cách mạng Lâm thời Cộng hòa miền Nam Việt Nam</b> ở miền Nam.</p>
+        <p class="mt-3"><b class="text-ink">Nhiệm vụ:</b> Vượt qua <b class="text-flagred">4 chương quyết định lịch sử</b> — từ Nghị quyết Trung ương 24, qua bàn tròn Hiệp thương, đến Ngày hội Tổng tuyển cử và Kỳ họp Quốc hội khóa VI — để hoàn thành <b>"Bộ Hồ Sơ Lịch Sử"</b>.</p>
+        <p class="mt-3"><b class="text-ink">Cơ chế phóng viên:</b> mỗi lần giải đố hoặc phỏng vấn thành công, nhấn nút <b>"Bấm máy 📸"</b> để tách! một tiếng — bức ảnh tư liệu được lưu vào <b>túi đồ 🎒</b> và sẽ lên <b>trang nhật báo cá nhân hóa</b> ở màn kết. Cuối game bạn sẽ <b>tự chọn tiêu đề bản tin</b> trước khi xuất bản!</p>
+      </div>
+
+      <!-- Nút tốc độ thoại (mobile) -->
+      <div class="mt-4 flex sm:hidden items-center gap-2">
+        <span class="text-[10px] uppercase tracking-widest text-ink-faint font-bold">Tốc độ thoại:</span>
+        <div class="flex items-center gap-0 border border-ink/40 bg-paper overflow-hidden">
+          <button id="introSpeedSlow" type="button" class="speed-btn active px-3 py-1 text-[10px] font-bold uppercase border-r border-ink/30">Chậm</button>
+          <button id="introSpeedMed" type="button" class="speed-btn px-3 py-1 text-[10px] font-bold uppercase border-r border-ink/30">Vừa</button>
+          <button id="introSpeedFast" type="button" class="speed-btn px-3 py-1 text-[10px] font-bold uppercase">⚡</button>
+        </div>
+      </div>
+
+      <div class="mt-5">
+        <label for="playerName" class="block text-[11px] uppercase tracking-[.25em] font-bold text-ink-soft mb-1.5">Bút danh phóng viên <span class="text-ink-faint normal-case tracking-normal">(in trên măng-sét báo)</span></label>
+        <input id="playerName" type="text" maxlength="24" placeholder="VD: Nguyễn Văn A" autocomplete="off"
+          class="w-full bg-paper-dark border-2 border-ink px-4 py-2.5 font-display font-bold text-lg focus:outline-none focus:border-flagred focus:bg-paper placeholder:text-ink-faint placeholder:font-body placeholder:text-sm placeholder:font-normal" />
+
+        <!-- Phục hồi tiến trình -->
+        <div id="resumeBar" class="hidden mt-3 p-3 bg-paper-dark border border-ink/50 flex items-center justify-between gap-3">
+          <p class="text-xs text-ink-soft leading-snug">📂 Tìm thấy lượt chơi chưa hoàn thành. Tiếp tục hay chơi lại?</p>
+          <div class="flex gap-2 shrink-0">
+            <button id="btnResume" type="button" class="px-3 py-1.5 bg-flagred text-paper font-bold text-xs uppercase border border-flagred-deep hover:bg-flagred-deep">Tiếp tục</button>
+            <button id="btnFresh" type="button" class="px-3 py-1.5 bg-paper text-ink font-bold text-xs uppercase border border-ink hover:bg-paper-deep">Chơi lại</button>
+          </div>
+        </div>
+
+        <button id="btnStart" type="button"
+          class="mt-4 w-full py-3.5 bg-flagred text-paper font-black uppercase tracking-[.2em] text-base sm:text-lg border-2 border-flagred-deep hover:bg-flagred-deep active:translate-y-px shadow-[4px_4px_0_rgba(31,41,55,.9)]">
+          ★ Bắt đầu tác nghiệp ★
+        </button>
+        <p class="text-[10px] text-ink-faint text-center mt-3">Nên bật tiếng 🔊 — có hiệu ứng gõ máy chữ, tiếng tách máy ảnh &amp; nhạc hành khúc. Ảnh tư liệu: Wikimedia Commons (miền công cộng / giấy phép tự do); mất mạng thì game tự thay bằng khung khắc gỗ.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MÀN KẾT: NHẬT BÁO SỐ ĐẶC BIỆT ================= -->
+  <div id="endScreen" class="fixed inset-0 z-50 bg-ink/85 hidden items-center justify-center p-3 sm:p-6">
+    <div class="newspaper relative w-full max-w-3xl bg-paper border-2 border-ink p-5 sm:p-8 anim-fadeup retro-scroll max-h-full overflow-y-auto shadow-[10px_10px_0_rgba(0,0,0,.5)]">
+
+      <!-- Măng-sét -->
+      <div class="text-center border-b-4 border-double border-ink pb-3">
+        <div class="flex items-center justify-between text-[9px] sm:text-[10px] uppercase tracking-widest text-ink-soft">
+          <span>Số đặc biệt ★ 01</span>
+          <span class="hidden sm:inline">Nhật báo của Tổ phóng viên tư liệu lịch sử</span>
+          <span>Sài Gòn — 1976</span>
+        </div>
+        <h1 class="font-display font-black text-3xl sm:text-5xl uppercase mt-1 leading-none tracking-tight">Bản Tin Đặc Biệt</h1>
+        <!-- Tiêu đề được chọn -->
+        <div id="endHeadline" class="font-display italic text-sm sm:text-base text-flagred mt-1.5 leading-snug px-2"></div>
+        <div class="mt-2 inline-block bg-ink text-paper px-4 py-1 text-[11px] sm:text-sm font-bold uppercase tracking-[.2em]">
+          Bút danh: <span id="endName" class="text-gold-pale">PHÓNG VIÊN</span>
+        </div>
+      </div>
+
+      <!-- Band điểm + danh hiệu + dấu duyệt -->
+      <div class="mt-4 flex flex-wrap items-center justify-center gap-x-6 gap-y-4 sm:grid sm:grid-cols-[1fr_auto] border-y border-ink/30 py-4">
+        <div class="flex flex-wrap items-center justify-center gap-x-6 gap-y-3 sm:gap-8">
+          <div class="text-center">
+            <div class="text-[9px] uppercase tracking-[.3em] text-ink-faint">Điểm tri thức</div>
+            <div class="font-display font-black text-5xl sm:text-6xl text-flagred leading-none mt-1"><span id="endScore">0</span><span class="text-xl text-ink-soft">/100</span></div>
+          </div>
+          <div class="text-center min-w-0">
+            <div class="text-[9px] uppercase tracking-[.3em] text-ink-faint">Danh hiệu</div>
+            <div id="endRank" class="font-display font-black text-base sm:text-xl uppercase mt-1 leading-snug">—</div>
+            <div id="endBadges" class="flex flex-wrap justify-center gap-1.5 mt-2"></div>
+          </div>
+        </div>
+        <div class="seal w-24 h-24 sm:w-28 sm:h-28 flex flex-col items-center justify-center text-center rotate-[-14deg] shrink-0">
+          <span class="text-sm" aria-hidden="true">★</span>
+          <span class="font-display font-black text-[9px] sm:text-[10px] uppercase leading-tight">Đã duyệt đăng<br/>Tòa soạn<br/>1976</span>
+        </div>
+      </div>
+      <p id="endDetail" class="text-center text-[11px] text-ink-faint mt-1"></p>
+
+      <!-- Ống kính tư liệu: ảnh đã thu thập -->
+      <div class="mt-5">
+        <h2 class="font-display font-black uppercase text-sm sm:text-base border-b-2 border-ink pb-1 mb-3">📷 Ống kính tư liệu — <span id="endPhotoCount">0</span> bức ảnh đã bấm máy</h2>
+        <div id="endPhotos" class="grid grid-cols-2 sm:grid-cols-3 gap-3"></div>
+      </div>
+
+      <!-- Bài báo -->
+      <div class="mt-5">
+        <h2 id="endArticleTitle" class="font-display font-black uppercase text-lg sm:text-2xl leading-tight">Sáu ngày định hình một quốc gia</h2>
+        <div class="news-columns mt-2 text-[13px] sm:text-sm leading-relaxed text-ink-soft text-justify">
+          <p><b class="text-ink font-display">SÀI GÒN, tháng 11/1975 —</b> Sáu tháng sau ngày miền Nam hoàn toàn giải phóng, non sông liền một dải về lãnh thổ nhưng vẫn còn hai chính thể song song: <b>Việt Nam Dân chủ Cộng hòa</b> ở miền Bắc và <b>Chính phủ Cách mạng Lâm thời Cộng hòa miền Nam Việt Nam</b> ở miền Nam. Hội nghị Trung ương lần thứ 24 (9/1975) đã đặt ra nhiệm vụ cấp bách: hoàn thành thống nhất đất nước về mặt Nhà nước.</p>
+          <p class="mt-2">Từ ngày 15 đến 21/11/1975, Hội nghị Hiệp thương chính trị thống nhất Tổ quốc họp giữa Sài Gòn. Đoàn miền Bắc do đồng chí Trường Chinh dẫn đầu, đoàn miền Nam do đồng chí Phạm Hùng dẫn đầu, đã nhất trí: khâu chính là thống nhất nước nhà về mặt Nhà nước; tổ chức sớm cuộc Tổng tuyển cử trên toàn bộ lãnh thổ để bầu Quốc hội chung cho cả nước.</p>
+          <p class="mt-2">Ngày 25/4/1976, hơn 23 triệu cử tri — 98,77% — đã đi bầu. Kỳ họp thứ nhất Quốc hội khóa VI (24/6–3/7/1976) tại Hà Nội tuyên bố đặt tên nước là <b>Cộng hòa Xã hội Chủ nghĩa Việt Nam</b>, xác định Thủ đô là Hà Nội, Quốc kỳ là cờ đỏ sao vàng, Quốc ca là bài "Tiến quân ca" và chính thức đổi tên thành phố Sài Gòn – Gia Định thành <b>Thành phố Hồ Chí Minh</b>. Bộ hồ sơ tư liệu này, cùng những bức ảnh trong trang báo, là minh chứng cho một ý chí: non sông liền một dải, pháp lý vững như bàn thạch.</p>
+        </div>
+        <div class="mt-3 border-t border-ink/30 pt-2 text-[10px] text-ink-faint leading-relaxed">
+          <p><b>Nguồn tư liệu:</b> Giáo trình <i>Lịch sử Đảng Cộng sản Việt Nam</i>, NXB CTQG Sự thật (tr. 156–160); <i>Văn kiện Đảng Toàn tập</i> t.36–37; Thông cáo Hội nghị Hiệp thương (21/11/1975). Ảnh: Wikimedia Commons (miền công cộng / giấy phép tự do).</p>
+          <p class="mt-1"><i>* Ghi chú khảo dị: giáo trình và một số tư liệu ghi địa điểm hội nghị tại Dinh Gia Long (nay là Bảo tàng TP.HCM); một số hồi ký báo chí ghi Dinh Độc Lập — cần đối chiếu thêm khi trích dẫn học thuật.</i></p>
+        </div>
+      </div>
+
+      <!-- Chữ ký tòa soạn -->
+      <div class="mt-4 flex items-end justify-between gap-4">
+        <div class="text-[11px] text-ink-soft leading-snug">
+          <div class="font-bold uppercase text-ink">T/M Tòa soạn</div>
+          <div>Chủ nhiệm: <b>Chú Sáu</b> · Trị sự: Tổ tư liệu</div>
+        </div>
+        <div class="font-display italic text-sm text-ink-soft text-right">"Đặt nền tảng pháp lý vững chắc<br/>cho non sông liền một dải."</div>
+      </div>
+
+      <!-- Nút hành động (ẩn khi in) -->
+      <div class="no-print mt-5 grid sm:grid-cols-3 gap-3">
+        <button id="btnPrint" type="button"
+          class="py-3 bg-gold text-ink font-black uppercase tracking-widest text-xs sm:text-sm border-2 border-ink hover:brightness-95 active:translate-y-px shadow-[3px_3px_0_rgba(31,41,55,.9)]">
+          🖨 In bản tin / Lưu PDF
+        </button>
+        <button id="btnReplay" type="button"
+          class="py-3 bg-flagred text-paper font-black uppercase tracking-widest text-xs sm:text-sm border-2 border-flagred-deep hover:bg-flagred-deep active:translate-y-px shadow-[3px_3px_0_rgba(31,41,55,.9)]">
+          ↻ Chơi lại
+        </button>
+        <button id="btnSummary" type="button"
+          class="py-3 bg-ink text-paper font-black uppercase tracking-widest text-xs sm:text-sm border-2 border-ink hover:bg-ink-soft active:translate-y-px shadow-[3px_3px_0_rgba(153,27,27,.9)]">
+          📜 Tóm tắt tư liệu
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL TÓM TẮT ================= -->
+  <div id="summaryModal" class="fixed inset-0 z-[60] bg-ink/80 hidden items-center justify-center p-3 sm:p-6" role="dialog" aria-modal="true" aria-label="Tóm tắt tư liệu nhanh">
+    <div class="w-full max-w-xl bg-paper border-2 border-ink shadow-[8px_8px_0_rgba(0,0,0,.5)] max-h-full overflow-y-auto retro-scroll anim-fadeup">
+      <div class="sticky top-0 bg-paper-dark border-b-2 border-ink px-4 sm:px-6 py-3 flex items-center justify-between">
+        <h2 class="font-display font-black uppercase text-base sm:text-lg">📜 Tóm tắt tư liệu nhanh</h2>
+        <button id="btnCloseSummary" type="button" aria-label="Đóng tóm tắt"
+          class="w-8 h-8 border border-ink bg-paper hover:bg-flagred hover:text-paper font-bold leading-none">✕</button>
+      </div>
+      <div class="px-4 sm:px-6 py-4 text-sm leading-relaxed space-y-4">
+        <ol class="space-y-2.5">
+          <li class="flex gap-3"><b class="shrink-0 text-flagred font-display">9/1975</b><span>Hội nghị Trung ương lần thứ 24 đề ra chủ trương <b>hoàn thành thống nhất đất nước về mặt Nhà nước</b> — "việc cần kíp trước mắt". Bối cảnh: hai chính thể song song — <b>VNDCCH</b> (miền Bắc) và <b>CHMNVN</b> (miền Nam).</span></li>
+          <li class="flex gap-3"><b class="shrink-0 text-flagred font-display">15–21/11/1975</b><span><b>Hội nghị Hiệp thương chính trị thống nhất Tổ quốc</b> họp tại Sài Gòn. Trưởng đoàn miền Bắc: đ/c <b>Trường Chinh</b>; trưởng đoàn miền Nam: đ/c <b>Phạm Hùng</b>. Nhất trí: khâu chính là thống nhất nước nhà về mặt Nhà nước; tổ chức sớm <b>Tổng tuyển cử trên toàn bộ lãnh thổ</b> bầu Quốc hội chung (trích Thông cáo 21/11/1975).</span></li>
+          <li class="flex gap-3"><b class="shrink-0 text-flagred font-display">25/4/1976</b><span><b>Tổng tuyển cử toàn quốc</b>: 98,77% cử tri đi bầu (hơn 23 triệu người), bầu ra Quốc hội chung khóa VI. Nguyên tắc: phổ thông, bình đẳng, trực tiếp, bỏ phiếu kín.</span></li>
+          <li class="flex gap-3"><b class="shrink-0 text-flagred font-display">24/6–3/7/1976</b><span>Kỳ họp thứ nhất <b>Quốc hội khóa VI</b> tại Hà Nội: đặt tên nước <b>Cộng hòa Xã hội Chủ nghĩa Việt Nam</b>, Thủ đô <b>Hà Nội</b>, Quốc kỳ <b>cờ đỏ sao vàng</b>, Quốc ca <b>"Tiến quân ca"</b>, đổi tên Sài Gòn – Gia Định thành <b>Thành phố Hồ Chí Minh</b>. Giao nhiệm vụ soạn <b>Hiến pháp mới</b>.</span></li>
+        </ol>
+        <div class="border-t border-ink/30 pt-3 text-xs text-ink-soft space-y-1.5">
+          <p><b>Ý nghĩa:</b> Chuyển từ thống nhất đất đai sang thống nhất nhà nước — pháp lý — ý chí; tạo sức mạnh toàn diện để xây dựng và bảo vệ Tổ quốc, nâng cao vị thế quốc tế của Việt Nam.</p>
+          <p><b>Nguồn:</b> Giáo trình <i>Lịch sử Đảng Cộng sản Việt Nam</i>, NXB Chính trị quốc gia Sự thật (tr. 156–160); <i>Văn kiện Đảng Toàn tập</i> t.36–37; Thông cáo Hội nghị Hiệp thương chính trị thống nhất Tổ quốc (21/11/1975).</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <noscript><div class="p-6 text-center font-bold text-flagred">Trò chơi cần JavaScript. Vui lòng bật JavaScript trong trình duyệt.</div></noscript>
+</div>
+
+<script>
+'use strict';
+/* =====================================================================
+   HÀNH TRÌNH THỐNG NHẤT — 1975  (BẢN NÂNG CẤP v2.0)
+   Visual Novel / Decision Game dạng state-machine thuần (vanilla JS).
+
+   Nâng cấp v2.0:
+   - Màn 3B: Kỳ họp Quốc hội khóa VI (24/6–3/7/1976), 5 quyết sách
+   - Chọn Headline 3 lựa (Pháp lý / Toàn vẹn lãnh thổ / Ý nguyện toàn dân)
+   - Nút "Bấm máy 📸" thủ công (sau khi hoàn thành nhiệm vụ)
+   - Tốc độ thoại: Chậm (20ms) / Vừa (8ms) / Tức thì (0ms)
+   - localStorage persistence: hỏi tiếp tục hay chơi lại khi reload
+   - Bối cảnh "hai chính thể" được làm rõ ở Màn 1
+   - Fallback ảnh khắc gỗ CSS mượt mà khi mất mạng
+===================================================================== */
+
+/* ---- Tiện ích ---- */
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+function shuffle(a) {
+  a = [...a];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+/* ---- Tốc độ gõ thoại ---- */
+// Chậm=20ms, Vừa=8ms, Tức thì=0ms
+let TYPING_SPEED = 20;
+
+function setSpeed(mode) {
+  if (mode === 'slow')   TYPING_SPEED = 20;
+  if (mode === 'med')    TYPING_SPEED = 8;
+  if (mode === 'fast')   TYPING_SPEED = 0;
+
+  // Cập nhật tất cả các nút speed
+  ['Slow','Med','Fast'].forEach(k => {
+    const b1 = $(`#speed${k}`);
+    const b2 = $(`#introSpeed${k}`);
+    const active = mode === k.toLowerCase();
+    if (b1) b1.classList.toggle('active', active);
+    if (b2) b2.classList.toggle('active', active);
+  });
+
+  // Lưu preference
+  try { localStorage.setItem('htnht_speed', mode); } catch(e) {}
+}
+
+/* ---- Kho ảnh tư liệu ----
+   Nguồn: Wikimedia Commons (miền công cộng / giấy phép tự do).
+   Dùng thumbnail 960px. Mọi khung đều có fallback "khắc gỗ" CSS
+   — không bao giờ gãy giao diện kể cả khi mất mạng hoàn toàn.
+-------------------------------------------------------------------- */
+const ARCHIVE = {
+  hanoi: {
+    src: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Vietnam1973.jpg/960px-Vietnam1973.jpg',
+    alt: 'Ảnh tư liệu miền Bắc Việt Nam đầu thập niên 1970',
+    caption: 'Hà Nội — Thủ đô nước VNDCCH.',
+    fallback: 'Hà Nội · Thủ đô VNDCCH'
+  },
+  saigon: {
+    src: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1c/DAO_Compound_30_April_1975.jpg/960px-DAO_Compound_30_April_1975.jpg',
+    alt: 'Ảnh tư liệu Sài Gòn ngày 30/4/1975',
+    caption: 'Sài Gòn sau ngày giải phóng 30/4/1975.',
+    fallback: 'Sài Gòn · 30/4/1975'
+  },
+  truongchinh: {
+    src: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/TruongChinh1955.jpg/960px-TruongChinh1955.jpg',
+    alt: 'Chân dung đồng chí Trường Chinh (ảnh tư liệu đen trắng)',
+    caption: 'Chân dung đ/c Trường Chinh — Trưởng đoàn miền Bắc.',
+    fallback: 'Chân dung đ/c Trường Chinh'
+  },
+  phamhung: {
+    src: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/86/Pham_Hung.jpg/960px-Pham_Hung.jpg',
+    alt: 'Chân dung đồng chí Phạm Hùng (ảnh tư liệu đen trắng)',
+    caption: 'Chân dung đ/c Phạm Hùng — Trưởng đoàn miền Nam.',
+    fallback: 'Chân dung đ/c Phạm Hùng'
+  },
+  hoinghi: {
+    src: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Independence_Palace%2C_Saigon_Ho_Chi_Minh_City_%289982392085%29.jpg/960px-Independence_Palace%2C_Saigon_Ho_Chi_Minh_City_%289982392085%29.jpg',
+    alt: 'Ảnh tư liệu Dinh Độc Lập, Sài Gòn — địa điểm hội nghị hiệp thương',
+    caption: 'Bàn tròn Hiệp thương giữa Sài Gòn, 11/1975.',
+    fallback: 'Bàn tròn Hiệp thương 11/1975'
+  },
+  baucu: {
+    src: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/63/C%E1%BA%A3nh_chu%E1%BA%A9n_b%E1%BB%8B_b%E1%BA%A7u_c%E1%BB%AD_Qu%E1%BB%91c_h%E1%BB%99i_kh%C3%B3a_I_t%E1%BA%A1i_ng%C3%B5_Ph%E1%BA%A5t_L%E1%BB%99c_n%C4%83m_1946.jpg/960px-C%E1%BA%A3nh_chu%E1%BA%A9n_b%E1%BB%8B_b%E1%BA%A7u_c%E1%BB%AD_Qu%E1%BB%91c_h%E1%BB%99i_kh%C3%B3a_I_t%E1%BA%A1i_ng%C3%B5_Ph%E1%BA%A5t_L%E1%BB%99c_n%C4%83m_1946.jpg',
+    alt: 'Ảnh tư liệu cử tri chuẩn bị bầu cử Quốc hội (minh họa không khí ngày hội bầu cử)',
+    caption: 'Cử tri nô nức ngày hội bầu cử Quốc hội.',
+    fallback: 'Ngày hội Tổng tuyển cử'
+  },
+  quochoi76: {
+    src: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Flag_of_Vietnam.svg/960px-Flag_of_Vietnam.svg.png',
+    alt: 'Quốc kỳ nước Cộng hòa Xã hội Chủ nghĩa Việt Nam — cờ đỏ sao vàng',
+    caption: 'Quốc kỳ CHXHCNVN — cờ đỏ sao vàng, chính thức tại QH khóa VI (7/1976).',
+    fallback: 'Quốc kỳ CHXHCNVN · 1976'
+  }
+};
+
+/**
+ * Dựng một khung ảnh tư liệu (figure > img + lớp fallback khắc gỗ).
+ * Fallback hoạt động ngay cả khi mất mạng hoàn toàn — CSS thuần.
+ */
+function photoFrame(key, opts = {}) {
+  const meta = ARCHIVE[key];
+  if (!meta) return document.createElement('div');
+  const fig = document.createElement('figure');
+  fig.className = 'photo-frame border-2 border-ink ' + (opts.round ? 'rounded-full ' : '') + (opts.cls || '');
+
+  const img = document.createElement('img');
+  img.src = meta.src;
+  img.alt = meta.alt;
+  img.loading = opts.eager ? 'eager' : 'lazy';
+  img.decoding = 'async';
+  // Fallback: khi ảnh lỗi → thêm class is-fallback → CSS ẩn img, hiện fb
+  img.addEventListener('error', () => {
+    fig.classList.add('is-fallback');
+  }, { once: true });
+
+  const fb = document.createElement('div');
+  fb.className = 'photo-fallback';
+  fb.innerHTML = `<span class="text-base leading-none" aria-hidden="true">✶</span>
+    <span class="font-display font-black uppercase text-[10px] leading-tight px-1"></span>
+    <span class="text-[8px] uppercase tracking-widest opacity-70">khắc gỗ tư liệu</span>`;
+  fb.querySelector('.font-display').textContent = meta.fallback;
+
+  fig.appendChild(img);
+  fig.appendChild(fb);
+  return fig;
+}
+
+/** Tải trước toàn bộ kho ảnh (ẩn, không chặn UI). */
+function preloadArchive() {
+  Object.values(ARCHIVE).forEach(m => { const i = new Image(); i.src = m.src; });
+}
+
+/* ========================= Sound Engine (WebAudio) =========================
+   Toàn bộ âm thanh TỔNG HỢP tại chỗ (không file mp3 ngoài):
+   SFX gõ máy chữ / chuông / dấu mộc / TÁCH MÁY ẢNH;
+   BGM hành khúc 4 ô nhịp giọng Rê trưởng với scheduler lookahead.
+=========================================================================== */
+const Sound = {
+  ctx: null,
+  master: null, sfxBus: null, bgmBus: null, noiseBuf: null,
+  sfxOn: true, bgmOn: true,
+  bgmTimer: null, bgmStep: 0, bgmNext: 0, bpm: 108,
+
+  CHORDS: [
+    [146.83, 185.00, 220.00],
+    [196.00, 246.94, 293.66],
+    [220.00, 277.18, 329.63],
+    [146.83, 185.00, 220.00]
+  ],
+  MELODY: [
+    [293.66, 369.99, 440.00, 369.99, 293.66, 369.99, 440.00, 493.88],
+    [392.00, 493.88, 392.00, 293.66, 392.00, 493.88, 392.00, 329.63],
+    [440.00, 329.63, 277.18, 329.63, 440.00, 329.63, 277.18, 220.00],
+    [293.66, 369.99, 440.00, 587.33, 440.00, 369.99, 293.66, 0]
+  ],
+
+  init() {
+    if (this.ctx) return;
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) { this.sfxOn = false; this.bgmOn = false; return; }
+    this.ctx = new AC();
+    this.master = this.ctx.createGain(); this.master.gain.value = 0.9;
+    this.master.connect(this.ctx.destination);
+    this.sfxBus = this.ctx.createGain(); this.sfxBus.gain.value = 0.6; this.sfxBus.connect(this.master);
+    this.bgmBus = this.ctx.createGain(); this.bgmBus.gain.value = 0.0001; this.bgmBus.connect(this.master);
+    const len = Math.floor(this.ctx.sampleRate * 0.3);
+    this.noiseBuf = this.ctx.createBuffer(1, len, this.ctx.sampleRate);
+    const data = this.noiseBuf.getChannelData(0);
+    for (let i = 0; i < len; i++) data[i] = Math.random() * 2 - 1;
+  },
+  ensure() {
+    this.init();
+    if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume();
+  },
+
+  tone(freq, { dur = 0.12, type = 'square', vol = 0.15, bus = null, at = null, filter = null } = {}) {
+    if (!this.ctx) return;
+    const t = at ?? this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    const g = this.ctx.createGain();
+    osc.type = type; osc.frequency.setValueAtTime(freq, t);
+    g.gain.setValueAtTime(vol, t);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    let node = osc;
+    if (filter) {
+      const f = this.ctx.createBiquadFilter();
+      f.type = 'lowpass'; f.frequency.value = filter;
+      osc.connect(f); node = f;
+    }
+    node.connect(g); g.connect(bus ?? this.sfxBus);
+    osc.start(t); osc.stop(t + dur + 0.05);
+  },
+
+  noise({ dur = 0.025, vol = 0.06, hp = 1200, bus = null, at = null } = {}) {
+    if (!this.ctx || !this.noiseBuf) return;
+    const t = at ?? this.ctx.currentTime;
+    const src = this.ctx.createBufferSource(); src.buffer = this.noiseBuf;
+    const f = this.ctx.createBiquadFilter(); f.type = 'highpass'; f.frequency.value = hp;
+    const g = this.ctx.createGain();
+    g.gain.setValueAtTime(vol, t);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    src.connect(f); f.connect(g); g.connect(bus ?? this.sfxBus);
+    src.start(t); src.stop(t + dur + 0.05);
+  },
+
+  click()   { if (!this.sfxOn) return; this.tone(1350, { dur: 0.03, type: 'square', vol: 0.09 }); this.noise({ dur: 0.02, vol: 0.05, hp: 2000 }); },
+  type()    { if (!this.sfxOn) return; this.noise({ dur: 0.018, vol: 0.05, hp: 1600 }); },
+  bell()    { if (!this.sfxOn) return; this.tone(1568, { dur: 0.25, type: 'triangle', vol: 0.12 }); },
+  success() { if (!this.sfxOn) return; [293.66, 369.99, 440, 587.33].forEach((f, i) => this.tone(f, { dur: 0.3, type: 'triangle', vol: 0.14, at: this.ctx.currentTime + i * 0.09 })); },
+  error()   { if (!this.sfxOn) return; this.tone(110, { dur: 0.22, type: 'sawtooth', vol: 0.13, filter: 500 }); this.tone(104, { dur: 0.22, type: 'square', vol: 0.07, filter: 400 }); },
+  stamp()   { if (!this.sfxOn) return; this.tone(72, { dur: 0.16, type: 'sine', vol: 0.3 }); this.noise({ dur: 0.06, vol: 0.12, hp: 300 }); },
+  /** Tiếng TÁCH của màn trập máy ảnh cơ: click kim khí + bụp gương lật + lên phim. */
+  shutter() {
+    if (!this.sfxOn) return;
+    const t = this.ctx.currentTime;
+    this.noise({ dur: 0.03, vol: 0.22, hp: 2600, at: t });
+    this.tone(2100, { dur: 0.035, type: 'square', vol: 0.1, at: t });
+    this.tone(95, { dur: 0.09, type: 'sine', vol: 0.22, at: t + 0.015 });
+    this.noise({ dur: 0.05, vol: 0.08, hp: 900, at: t + 0.12 }); // kéo phim
+  },
+
+  startBgm() {
+    if (!this.ctx || this.bgmTimer) return;
+    const t = this.ctx.currentTime;
+    this.bgmBus.gain.cancelScheduledValues(t);
+    this.bgmBus.gain.setValueAtTime(Math.max(this.bgmBus.gain.value, 0.0001), t);
+    this.bgmBus.gain.linearRampToValueAtTime(0.16, t + 1.2);
+    this.bgmNext = t + 0.1; this.bgmStep = 0;
+    this.bgmTimer = setInterval(() => this.bgmTick(), 50);
+  },
+  stopBgm() {
+    if (!this.bgmTimer) return;
+    clearInterval(this.bgmTimer); this.bgmTimer = null;
+    const t = this.ctx.currentTime;
+    this.bgmBus.gain.cancelScheduledValues(t);
+    this.bgmBus.gain.setValueAtTime(this.bgmBus.gain.value, t);
+    this.bgmBus.gain.linearRampToValueAtTime(0.0001, t + 0.4);
+  },
+  bgmTick() {
+    if (!this.ctx) return;
+    const secPer8 = 60 / this.bpm / 2;
+    while (this.bgmNext < this.ctx.currentTime + 0.25) {
+      this.bgmPlayStep(this.bgmStep, this.bgmNext);
+      this.bgmNext += secPer8;
+      this.bgmStep = (this.bgmStep + 1) % 32;
+    }
+  },
+  bgmPlayStep(step, t) {
+    const bar = step >> 3, pos = step & 7;
+    if (pos === 0) this.CHORDS[bar].forEach(f => this.tone(f, { dur: 0.85, type: 'sawtooth', vol: 0.028, bus: this.bgmBus, at: t, filter: 640 }));
+    const m = this.MELODY[bar][pos];
+    if (m) this.tone(m, { dur: 0.22, type: 'triangle', vol: 0.05, bus: this.bgmBus, at: t });
+    if (pos === 0 || pos === 4) {
+      const o = this.ctx.createOscillator(), g = this.ctx.createGain();
+      o.type = 'sine'; o.frequency.setValueAtTime(150, t);
+      o.frequency.exponentialRampToValueAtTime(48, t + 0.11);
+      g.gain.setValueAtTime(0.22, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.13);
+      o.connect(g); g.connect(this.bgmBus); o.start(t); o.stop(t + 0.18);
+    }
+    if (pos === 2 || pos === 6) this.noise({ dur: 0.07, vol: 0.09, hp: 1400, bus: this.bgmBus, at: t });
+  },
+
+  toggleSfx() { this.sfxOn = !this.sfxOn; return this.sfxOn; },
+  toggleBgm() {
+    this.bgmOn = !this.bgmOn;
+    if (this.bgmOn) { this.ensure(); this.startBgm(); } else { this.stopBgm(); }
+    return this.bgmOn;
+  }
+};
+
+/* ========================= Dialog Engine ========================= */
+const NARR = '__narrator__';
+const EDITOR = 'CHÚ SÁU · TỔNG BIÊN TẬP';
+const YOU = 'BẠN · PHÓNG VIÊN TƯ LIỆU';
+const TC = 'Đ/C TRƯỜNG CHINH · TRƯỞNG ĐOÀN MIỀN BẮC';
+const PH = 'Đ/C PHẠM HÙNG · TRƯỞNG ĐOÀN MIỀN NAM';
+
+const Dialog = {
+  queue: [],
+  typing: false,
+  awaitChoice: false,
+  timer: null,
+  charIdx: 0,
+  fullText: '',
+
+  els: {
+    tag: $('#speakerTag'), text: $('#dialogText'), cont: $('#btnContinue'),
+    choices: $('#choiceArea'), dots: $('#idleDots'), zone: $('#dialogClickZone')
+  },
+
+  say(speaker, text) { this.queue.push({ t: 'say', speaker, text }); return this; },
+  ask(choices)       { this.queue.push({ t: 'ask', choices }); return this; },
+  act(fn)            { this.queue.push({ t: 'act', fn }); return this; },
+
+  play() { if (!this.typing && !this.awaitChoice) this.next(); },
+
+  next() {
+    const item = this.queue.shift();
+    if (!item) { this.idle(); return; }
+    if (item.t === 'act') { item.fn(); this.next(); return; }
+    if (item.t === 'say') { this.renderSay(item); return; }
+    if (item.t === 'ask') { this.renderAsk(item); return; }
+  },
+
+  renderSay({ speaker, text }) {
+    this.hideChoices(); this.els.cont.classList.add('hidden'); this.els.dots.classList.add('hidden');
+    if (speaker === NARR) {
+      this.els.tag.classList.add('hidden');
+      this.els.text.classList.add('italic', 'text-ink-soft');
+    } else {
+      this.els.tag.textContent = speaker;
+      this.els.tag.classList.remove('hidden');
+      this.els.text.classList.remove('italic', 'text-ink-soft');
+    }
+    this.fullText = text; this.charIdx = 0;
+    this.els.text.textContent = '';
+    this.els.text.classList.add('caret');
+    this.typing = true;
+    clearInterval(this.timer);
+
+    // Tức thì: hiển thị ngay, không animation
+    if (TYPING_SPEED === 0) {
+      this.els.text.textContent = this.fullText;
+      this.finishTyping();
+      return;
+    }
+
+    this.timer = setInterval(() => {
+      this.charIdx++;
+      this.els.text.textContent = this.fullText.slice(0, this.charIdx);
+      if (this.charIdx % 2 === 0) Sound.type();
+      this.els.text.scrollTop = this.els.text.scrollHeight;
+      if (this.charIdx >= this.fullText.length) this.finishTyping();
+    }, TYPING_SPEED);
+  },
+
+  skipTyping() {
+    if (!this.typing) return;
+    clearInterval(this.timer);
+    this.els.text.textContent = this.fullText;
+    this.finishTyping();
+  },
+
+  finishTyping() {
+    clearInterval(this.timer);
+    this.typing = false;
+    this.els.text.classList.remove('caret');
+    this.els.cont.classList.remove('hidden');
+    Sound.bell();
+  },
+
+  renderAsk({ choices }) {
+    this.awaitChoice = true;
+    this.els.cont.classList.add('hidden'); this.els.dots.classList.add('hidden');
+    this.els.choices.innerHTML = '';
+    this.els.choices.classList.remove('hidden');
+    choices.forEach((c, i) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'w-full text-left px-4 py-2.5 bg-paper-dark border border-ink hover:bg-flagred hover:text-paper hover:border-flagred-deep active:translate-y-px transition font-body text-sm sm:text-[15px] leading-snug';
+      b.innerHTML = `<span class="font-display font-black text-flagred mr-2">${String.fromCharCode(65 + i)}.</span><span class="choice-label"></span>`;
+      b.querySelector('.choice-label').textContent = c.label;
+      b.addEventListener('mouseenter', () => Sound.click());
+      b.addEventListener('click', () => {
+        Sound.click();
+        this.awaitChoice = false;
+        this.hideChoices();
+        c.run();
+      });
+      this.els.choices.appendChild(b);
+    });
+    this.els.choices.querySelector('button')?.focus();
+  },
+
+  hideChoices() { this.els.choices.innerHTML = ''; this.els.choices.classList.add('hidden'); },
+
+  idle() {
+    this.typing = false; this.awaitChoice = false;
+    this.els.cont.classList.add('hidden');
+    this.hideChoices();
+    this.els.dots.classList.remove('hidden');
+  },
+
+  advance() {
+    if (this.typing) { this.skipTyping(); return; }
+    if (this.awaitChoice) return;
+    this.next();
+  },
+
+  clearQueue() {
+    this.queue = [];
+    clearInterval(this.timer);
+    this.typing = false; this.awaitChoice = false;
+    this.hideChoices();
+    this.els.cont.classList.add('hidden');
+    this.els.dots.classList.remove('hidden');
+  }
+};
+
+/* ========================= Game State ========================= */
+const STATE_KEY = 'htnht_save_v2';
+
+const state = {
+  screen: 'intro',
+  playerName: '',
+  score: 0,
+  badges: [],
+  bag: [],                       // [{key, caption}]
+  selectedHeadline: null,        // tiêu đề bản tin được chọn
+  ch1Wrong: 0, ch1Locked: false, ch1Selected: new Set(),
+  ch1CaptureReady: false,        // người chơi đã hoàn thành, chưa bấm máy
+  ch2Wrong: 0, ch2Locked: false, ch2Interviewed: [], ch2ChoiceOpened: false,
+  ch2Question: null, ch2Asked: [],
+  ch3Mistakes: 0, ch3Matched: 0, ch3ActiveDate: null, ch3Done: false,
+  ch3bDecreesOpened: 0,          // số quyết sách đã mở
+  ch3bOpenedIds: [],             // danh sách id quyết sách đã mở
+  ch3bCaptureReady: false        // đã khám phá đủ 5 quyết sách
+};
+
+/* ---- localStorage persistence ---- */
+function serializeState() {
+  return {
+    screen: state.screen,
+    playerName: state.playerName,
+    score: state.score,
+    badges: state.badges,
+    bag: state.bag,
+    selectedHeadline: state.selectedHeadline,
+    ch1Wrong: state.ch1Wrong,
+    ch1Locked: state.ch1Locked,
+    ch1Selected: [...state.ch1Selected],
+    ch2Wrong: state.ch2Wrong,
+    ch2Locked: state.ch2Locked,
+    ch2Interviewed: state.ch2Interviewed,
+    ch2ChoiceOpened: state.ch2ChoiceOpened,
+    ch2Question: state.ch2Question,
+    ch2Asked: state.ch2Asked,
+    ch3Mistakes: state.ch3Mistakes,
+    ch3Matched: state.ch3Matched,
+    ch3Done: state.ch3Done,
+    ch3bDecreesOpened: state.ch3bDecreesOpened,
+    ch3bOpenedIds: state.ch3bOpenedIds || []
+  };
+}
+
+function saveState() {
+  try {
+    localStorage.setItem(STATE_KEY, JSON.stringify(serializeState()));
+  } catch(e) {}
+}
+
+function loadSavedState() {
+  try {
+    const raw = localStorage.getItem(STATE_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch(e) { return null; }
+}
+
+function clearSavedState() {
+  try { localStorage.removeItem(STATE_KEY); } catch(e) {}
+}
+
+function applySavedState(saved) {
+  state.screen = saved.screen || 'intro';
+  state.playerName = saved.playerName || '';
+  state.score = saved.score || 0;
+  state.badges = saved.badges || [];
+  state.bag = saved.bag || [];
+  state.selectedHeadline = saved.selectedHeadline || null;
+  state.ch1Wrong = saved.ch1Wrong || 0;
+  state.ch1Locked = saved.ch1Locked || false;
+  state.ch1Selected = new Set(saved.ch1Selected || []);
+  state.ch2Wrong = saved.ch2Wrong || 0;
+  state.ch2Locked = saved.ch2Locked || false;
+  state.ch2Interviewed = saved.ch2Interviewed || [];
+  state.ch2ChoiceOpened = saved.ch2ChoiceOpened || false;
+  state.ch2Question = saved.ch2Question || null;
+  state.ch2Asked = saved.ch2Asked || [];
+  state.ch3Mistakes = saved.ch3Mistakes || 0;
+  state.ch3Matched = saved.ch3Matched || 0;
+  state.ch3Done = saved.ch3Done || false;
+  state.ch3bDecreesOpened = saved.ch3bDecreesOpened || 0;
+  state.ch3bOpenedIds = saved.ch3bOpenedIds || [];
+}
+
+/* ========================= Dữ liệu nội dung ========================= */
+const CH1_OPTIONS = [
+  { id: 'a', correct: true,  text: 'Chấm dứt tình trạng hai nhà nước song song (VNDCCH và CHMNVN), tập trung sức mạnh toàn dân để xây dựng chủ nghĩa xã hội và củng cố quốc phòng.' },
+  { id: 'b', correct: false, text: 'Tạm duy trì hai chính phủ riêng thêm một thập kỷ để ổn định tình hình từng miền.' },
+  { id: 'c', correct: true,  text: 'Thống nhất quản lý kinh tế – xã hội trên cả nước; xác lập địa vị pháp lý duy nhất của Việt Nam, mở rộng quan hệ ngoại giao quốc tế.' },
+  { id: 'd', correct: false, text: 'Chia cả nước thành các vùng tự trị, mỗi vùng tự ban hành hiến pháp và bộ máy riêng.' },
+  { id: 'e', correct: false, text: 'Ưu tiên tái thiết kinh tế miền Bắc trước, khi nào đủ mạnh mới tính chuyện thống nhất thể chế.' }
+];
+
+const CH2_QUESTIONS = [
+  { id: 'q1', good: true,  label: 'Thưa đồng chí, vì sao không thể hiệp thương từng phần mà phải tiến hành Tổng tuyển cử dân chủ trên toàn quốc?' },
+  { id: 'q2', good: false, label: 'Thưa đồng chí, hội nghị lần này khác gì những cuộc họp mặt thông thường giữa hai miền?' },
+  { id: 'q3', good: true,  label: 'Thưa đồng chí, nhân dân hai miền sẽ trực tiếp định đoạt thể chế mới bằng cách nào?' }
+];
+
+const CH2_ANSWERS = {
+  tc: {
+    good: 'Hỏi trúng vấn đề then chốt rồi đó! Hiệp thương từng phần không xóa được tình trạng hai nhà nước — VNDCCH và CHMNVN. Khâu chính của toàn bộ quá trình thống nhất Tổ quốc là thống nhất nước nhà VỀ MẶT NHÀ NƯỚC — và con đường duy nhất là TỔNG TUYỂN CỬ trên toàn bộ lãnh thổ, bầu ra Quốc hội chung cho cả nước.',
+    bad:  'Họp mặt thì năm nào chẳng có, nhưng lần này khác: chúng tôi bàn chuyện thống nhất nước nhà VỀ MẶT NHÀ NƯỚC — khâu chính của toàn bộ quá trình thống nhất Tổ quốc, điều kiện cơ bản để cả nước tiến lên chủ nghĩa xã hội. Cậu nên hỏi sâu hơn về CON ĐƯỜNG thực hiện điều đó.'
+  },
+  ph: {
+    good: 'Ý Đảng hợp lòng dân! Nhân dân hai miền sẽ trực tiếp cầm lá phiếu: Tổng tuyển cử theo nguyên tắc phổ thông, bình đẳng, trực tiếp, bỏ phiếu kín. Quốc hội chung ấy sẽ định thể chế nhà nước, bầu cơ quan lãnh đạo và ban hành Hiến pháp mới. Hội đồng Bầu cử toàn quốc gồm 22 đại biểu — mỗi miền 11 người.',
+    bad:  'Khác ở chỗ lần này hai miền bàn chuyện lớn nhất của dân tộc: thống nhất nước nhà về mặt Nhà nước. Còn bằng cách nào ư — cậu nên hỏi thẳng nhân dân sẽ định đoạt thể chế mới ra sao, đó mới là cốt lõi!'
+  }
+};
+
+const CH3_DATES = [
+  { id: 'd1', label: '9 / 1975' },
+  { id: 'd2', label: '15–21 / 11 / 1975' },
+  { id: 'd3', label: '25 / 4 / 1976' },
+  { id: 'd4', label: '24/6 – 3/7 / 1976' }
+];
+const CH3_EVENTS = [
+  { id: 'e1', dateId: 'd1', text: 'Hội nghị Trung ương lần thứ 24: đề ra chủ trương hoàn thành thống nhất đất nước về mặt Nhà nước.' },
+  { id: 'e2', dateId: 'd2', text: 'Hội nghị Hiệp thương chính trị thống nhất Tổ quốc họp tại Sài Gòn giữa hai đoàn đại biểu Nam – Bắc.' },
+  { id: 'e3', dateId: 'd3', text: 'Tổng tuyển cử toàn quốc: 98,77% cử tri đi bầu, bầu ra Quốc hội chung cho cả nước (khóa VI).' },
+  { id: 'e4', dateId: 'd4', text: 'Kỳ họp thứ nhất Quốc hội khóa VI: đặt tên nước CHXHCNVN, Thủ đô HN, Quốc kỳ cờ đỏ sao vàng, đổi tên Sài Gòn thành TP.HCM.' }
+];
+
+/* 5 quyết sách Kỳ họp QH khóa VI */
+const CH3B_DECREES = [
+  {
+    id: 'name',
+    icon: '🏛️',
+    front: 'Tên nước mới',
+    back: 'Đặt tên nước là\n<b>Cộng hòa Xã hội Chủ nghĩa Việt Nam</b>\n(viết tắt: CHXHCNVN)\nThay thế hai chính thể cũ trên toàn lãnh thổ.'
+  },
+  {
+    id: 'flag',
+    icon: '🚩',
+    front: 'Quốc kỳ',
+    back: 'Quốc kỳ là <b>cờ đỏ sao vàng</b> — nền đỏ, ngôi sao vàng năm cánh ở giữa.\nGiữ nguyên quốc kỳ của VNDCCH, nay chính thức cho cả nước.'
+  },
+  {
+    id: 'anthem',
+    icon: '🎵',
+    front: 'Quốc ca',
+    back: 'Quốc ca là bài <b>"Tiến quân ca"</b> của nhạc sĩ Văn Cao.\nCũng là quốc ca của VNDCCH, nay là quốc ca chung cho toàn quốc.'
+  },
+  {
+    id: 'capital',
+    icon: '🏙️',
+    front: 'Thủ đô',
+    back: 'Thủ đô nước CHXHCNVN là <b>Hà Nội</b>.\nHà Nội — trái tim hơn nghìn năm văn hiến, tiếp tục là trung tâm chính trị của đất nước thống nhất.'
+  },
+  {
+    id: 'hcmc',
+    icon: '🌆',
+    front: 'Thành phố mới',
+    back: 'Chính thức đổi tên <b>Sài Gòn – Gia Định</b> thành\n<b>Thành phố Hồ Chí Minh</b>\nđể tưởng nhớ Chủ tịch Hồ Chí Minh — người đã cống hiến cả cuộc đời cho sự nghiệp thống nhất Tổ quốc.'
+  }
+];
+
+/* 3 lựa chọn Headline bản tin */
+const HEADLINES = [
+  {
+    id: 'legal',
+    label: '⚖️ Góc pháp lý: "Một nhà nước, một hiến pháp — nền móng pháp lý cho non sông liền dải"',
+    headline: 'MỘT NHÀ NƯỚC, MỘT HIẾN PHÁP — NỀN MÓNG PHÁP LÝ CHO NON SÔNG LIỀN DẢI',
+    subtitle: '"Nước Việt Nam là một — Dân tộc Việt Nam là một"'
+  },
+  {
+    id: 'territory',
+    label: '🗺️ Góc toàn vẹn lãnh thổ: "Từ Hiền Lương đến Cà Mau — một dải gấm hoa, một chính thể thống nhất"',
+    headline: 'TỪ HIỀN LƯƠNG ĐẾN CÀ MAU — MỘT DẢI GẤM HOA, MỘT CHÍNH THỂ THỐNG NHẤT',
+    subtitle: 'Kết thúc hơn hai mươi năm chia cắt, Việt Nam chính thức về một mối'
+  },
+  {
+    id: 'people',
+    label: '🗳️ Góc ý nguyện toàn dân: "98,77% lá phiếu — ý dân là nền móng của nhà nước mới"',
+    headline: '98,77% LÁ PHIẾU — Ý DÂN LÀ NỀN MÓNG CỦA NHÀ NƯỚC MỚI',
+    subtitle: 'Hơn 23 triệu cử tri nói lên ý nguyện thống nhất qua lá phiếu phổ thông'
+  }
+];
+
+const BADGES = {
+  ch1: { code: 'ch1', name: 'Sử Liệu Xác Đáng' },
+  ch2: { code: 'ch2', name: 'Ngòi Bút Sắc Bén' },
+  ch3: { code: 'ch3', name: 'Dòng Thời Gian Chuẩn Xác' },
+  ch3b: { code: 'ch3b', name: 'Nhân Chứng Lịch Sử' }
+};
+
+/* ========================= Hiển thị phụ trợ ========================= */
+function setScore(v, animate = true) {
+  state.score = v;
+  const el = $('#scoreView');
+  el.innerHTML = `${v}<span class="text-[10px] text-ink-soft font-body">/100</span>`;
+  if (animate) { el.classList.remove('anim-pop'); void el.offsetWidth; el.classList.add('anim-pop'); }
+}
+
+function updateProgress(ch) {
+  const labels = ['Hai chính thể', 'Bàn tròn hiệp thương', 'Ngày hội non sông', 'Kỳ họp QH khóa VI'];
+  const bar = $('#progressBar');
+  bar.innerHTML = '';
+  const maxCh = 4;
+  for (let i = 1; i <= maxCh; i++) {
+    const done = (state.screen === 'end') || i < ch;
+    const current = i === ch && state.screen !== 'end';
+    const wrap = document.createElement('div');
+    wrap.className = 'flex items-center gap-1 sm:gap-2 min-w-0';
+    const dot = document.createElement('span');
+    dot.className = 'shrink-0 w-6 h-6 sm:w-7 sm:h-7 flex items-center justify-center text-[11px] font-black border-2 ' +
+      (done ? 'bg-flagred border-flagred-deep text-paper' :
+       current ? 'bg-paper border-flagred text-flagred anim-pulse-ring' :
+       'bg-paper border-ink/30 text-ink-faint');
+    dot.textContent = done ? '✓' : String(i);
+    dot.setAttribute('aria-label', `Màn ${i}: ${labels[i-1]}${done ? ' (hoàn thành)' : current ? ' (hiện tại)' : ''}`);
+    const lbl = document.createElement('span');
+    lbl.className = 'hidden lg:block text-[10px] uppercase tracking-wider font-bold truncate ' +
+      (done || current ? 'text-ink' : 'text-ink-faint');
+    lbl.textContent = `${i} · ${labels[i-1]}`;
+    wrap.appendChild(dot); wrap.appendChild(lbl);
+    bar.appendChild(wrap);
+    if (i < maxCh) {
+      const line = document.createElement('span');
+      line.className = 'w-3 sm:w-6 h-0.5 shrink-0 ' + (i < ch || state.screen === 'end' ? 'bg-flagred' : 'bg-ink/25');
+      bar.appendChild(line);
+    }
+  }
+}
+
+function awardBadge(key) {
+  const b = BADGES[key];
+  if (!b || state.badges.some(x => x.code === b.code)) return;
+  state.badges.push(b);
+  const row = $('#badgeRow');
+  const chip = document.createElement('span');
+  chip.className = 'text-[9px] font-bold uppercase tracking-wide border border-flagred text-flagred bg-paper px-1.5 py-px rounded-full anim-fadeup';
+  chip.textContent = `★ ${b.name}`;
+  row.appendChild(chip);
+  $('#stampTitle').innerHTML = b.name.toUpperCase().split(' ').join('<br>');
+  const layer = $('#stampLayer'), card = $('#stampCard');
+  layer.classList.remove('hidden');
+  card.classList.remove('anim-fadeout');
+  card.classList.remove('anim-stamp'); void card.offsetWidth; card.classList.add('anim-stamp');
+  Sound.stamp();
+  setTimeout(() => { card.classList.add('anim-fadeout'); }, 1700);
+  setTimeout(() => { layer.classList.add('hidden'); card.classList.remove('anim-fadeout'); }, 2300);
+}
+
+function showScene(ch) {
+  $$('.scene').forEach(s => { s.classList.add('hidden'); s.classList.remove('flex'); });
+  const sc = $(`#scene-ch${ch === '3b' ? '3b' : ch}`);
+  if (sc) { sc.classList.remove('hidden'); sc.classList.add('flex'); }
+}
+function openPanel(ch) {
+  closePanels();
+  const el = $(`#panel-ch${ch}`) || $(`#panel-${ch}`);
+  el?.classList.remove('hidden');
+}
+function closePanels() { $$('.task-panel').forEach(p => p.classList.add('hidden')); }
+function setHint(sel, msg) { const el = $(sel); if (el) el.textContent = msg || ''; }
+function shake(el) { if (!el) return; el.classList.remove('anim-shake'); void el.offsetWidth; el.classList.add('anim-shake'); }
+
+const calcCh1 = () => Math.max(10, 30 - 10 * state.ch1Wrong);
+const calcCh2 = () => Math.max(10, 40 - 10 * state.ch2Wrong);
+const calcCh3 = () => Math.max(10, 20 - 5 * state.ch3Mistakes);
+const calcCh3b = () => 10; // bonus màn QH khóa VI
+
+function rankFor(score) {
+  if (score >= 95) return 'Cây Bút Vàng Tư Liệu';
+  if (score >= 80) return 'Nhà Báo Xuất Sắc';
+  if (score >= 60) return 'Cây Bút Tin Cậy';
+  return 'Phóng Viên Kiên Trì';
+}
+
+/* ================== Cơ chế phóng viên: bấm máy ================== */
+function flashScreen() {
+  const f = $('#flashLayer');
+  f.classList.remove('anim-flash'); void f.offsetWidth; f.classList.add('anim-flash');
+}
+
+/** Lưu một bức ảnh tư liệu vào túi đồ (kèm chớp sáng + tiếng tách). */
+function capturePhoto(key) {
+  if (state.bag.some(p => p.key === key)) return;
+  state.bag.push({ key, caption: ARCHIVE[key]?.caption || key });
+  Sound.shutter();
+  flashScreen();
+  updateBagCount(true);
+  renderBag();
+  saveState();
+}
+
+function updateBagCount(pop) {
+  const el = $('#bagCount');
+  el.textContent = state.bag.length;
+  if (pop) { el.classList.remove('anim-pop'); void el.offsetWidth; el.classList.add('anim-pop'); }
+}
+
+function renderBag() {
+  const list = $('#bagList');
+  list.innerHTML = '';
+  if (state.bag.length === 0) {
+    list.innerHTML = '<p class="text-xs text-ink-faint text-center py-6 leading-relaxed">Chưa có bức ảnh nào trong túi.<br/>Giải đố và phỏng vấn thành công<br/>rồi nhấn "Bấm máy 📸"!</p>';
+    return;
+  }
+  state.bag.forEach((p, i) => {
+    const wrap = document.createElement('div');
+    wrap.className = 'bg-paper-dark border border-ink/60 p-1.5 anim-fadeup';
+    const frame = photoFrame(p.key, { cls: 'w-full h-24' });
+    wrap.appendChild(frame);
+    const cap = document.createElement('p');
+    cap.className = 'text-[10px] leading-tight text-ink-soft pt-1';
+    cap.innerHTML = `<b class="text-flagred">Ảnh ${String(i + 1).padStart(2, '0')}:</b> `;
+    cap.appendChild(document.createTextNode(p.caption));
+    wrap.appendChild(cap);
+    list.appendChild(wrap);
+  });
+}
+
+function toggleBag(open) {
+  const p = $('#bagPanel');
+  const willOpen = open ?? p.classList.contains('translate-x-full');
+  p.classList.toggle('translate-x-full', !willOpen);
+  if (willOpen) renderBag();
+}
+
+/* ============================== MÀN 1 ============================== */
+function buildCh1Panel() {
+  const box = $('#ch1Options');
+  box.innerHTML = '';
+  const submitBtn = $('#ch1Submit');
+  if (submitBtn) {
+    submitBtn.classList.remove('hidden', 'opacity-40', 'cursor-not-allowed');
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Lưu vào hồ sơ ✒';
+  }
+  const capBtn = $('#ch1CaptureBtn');
+  if (capBtn) {
+    capBtn.classList.add('hidden');
+    capBtn.disabled = false;
+    capBtn.textContent = 'Bấm máy 📸 — Lưu ảnh tư liệu vào túi đồ';
+  }
+
+  shuffle(CH1_OPTIONS).forEach(opt => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.dataset.id = opt.id;
+    b.setAttribute('aria-pressed', 'false');
+    b.className = 'opt-card w-full text-left flex items-start gap-3 bg-paper-dark border border-ink/70 px-3 py-2.5 text-sm leading-snug';
+    b.innerHTML = `<span class="shrink-0 w-5 h-5 mt-px border-2 border-ink bg-paper flex items-center justify-center text-flagred font-black text-xs opt-check"></span><span class="opt-label"></span>`;
+    b.querySelector('.opt-label').textContent = opt.text;
+    b.addEventListener('click', () => toggleCh1Option(opt.id, b));
+    box.appendChild(b);
+  });
+  setHint('#ch1Hint', '');
+  updateCh1Counter();
+}
+
+function toggleCh1Option(id, btn) {
+  if (state.ch1Locked) return;
+  Sound.click();
+  const sel = state.ch1Selected;
+  if (sel.has(id)) {
+    sel.delete(id);
+    btn.setAttribute('aria-pressed', 'false');
+    btn.querySelector('.opt-check').textContent = '';
+  } else {
+    if (sel.size >= 2) {
+      setHint('#ch1Hint', 'Hồ sơ chỉ nhận đúng 2 luận điểm — bỏ bớt một cái đã!');
+      Sound.error();
+      shake($('#panel-ch1 .max-w-3xl'));
+      return;
+    }
+    sel.add(id);
+    btn.setAttribute('aria-pressed', 'true');
+    btn.querySelector('.opt-check').textContent = '✕';
+  }
+  setHint('#ch1Hint', '');
+  updateCh1Counter();
+}
+function updateCh1Counter() {
+  $('#ch1Counter').textContent = `Đã chọn: ${state.ch1Selected.size}/2`;
+}
+
+function submitCh1() {
+  if (state.ch1Locked) return;
+  const sel = state.ch1Selected;
+  if (sel.size !== 2) {
+    setHint('#ch1Hint', 'Phải chọn đúng 2 luận điểm trước khi lưu hồ sơ.');
+    Sound.error(); shake($('#panel-ch1 .max-w-3xl'));
+    return;
+  }
+  const allCorrect = [...sel].every(id => CH1_OPTIONS.find(o => o.id === id).correct);
+  const cards = $$('#ch1Options .opt-card');
+
+  if (allCorrect) {
+    state.ch1Locked = true;
+    Sound.success();
+    cards.forEach(c => {
+      const ok = CH1_OPTIONS.find(o => o.id === c.dataset.id).correct;
+      c.classList.add(ok ? 'reveal-ok' : 'opacity-40');
+      c.disabled = true;
+    });
+
+    // Ẩn nút "Lưu vào hồ sơ" và thay thế ngay tại vị trí đó bằng nút Bấm máy nổi bật
+    $('#ch1Submit').classList.add('hidden');
+    const capBtn = $('#ch1CaptureBtn');
+    capBtn.classList.remove('hidden');
+    capBtn.disabled = false;
+    capBtn.textContent = 'Bấm máy 📸 — Lưu ảnh tư liệu vào túi đồ';
+    capBtn.className = 'shrink-0 px-5 py-2.5 bg-flagred text-paper font-bold uppercase tracking-wider text-sm border-2 border-flagred-deep hover:bg-flagred-deep active:translate-y-px shadow-[3px_3px_0_rgba(31,41,55,.85)] anim-pulse-ring';
+    setHint('#ch1Hint', '🎉 Chuẩn xác! Hãy nhấn nút "Bấm máy 📸" để lưu ảnh tư liệu vào túi đồ!');
+
+    const pts = calcCh1();
+    Dialog
+      .say(EDITOR, `Chuẩn xác! Hai chính thể — VNDCCH ở miền Bắc và CHMNVN ở miền Nam — không thể tồn tại song song mãi. Thống nhất về mặt Nhà nước chính là "khâu chính" — tập trung sức mạnh toàn dân xây dựng chủ nghĩa xã hội, xác lập tư cách pháp lý duy nhất của Việt Nam trước thế giới.`)
+      .say(EDITOR, `Hồ sơ đạt chất lượng. Thưởng huy hiệu "Sử Liệu Xác Đáng"! Nhấn nút "Bấm máy 📸" để ghi lại tư liệu hai miền, rồi vào hội trường!`)
+      .act(() => { awardBadge('ch1'); setScore(state.score + pts); saveState(); })
+      .play();
+  } else {
+    state.ch1Wrong++;
+    Sound.error();
+    cards.forEach(c => {
+      if (sel.has(c.dataset.id) && !CH1_OPTIONS.find(o => o.id === c.dataset.id).correct) {
+        c.classList.add('reveal-bad', 'anim-shake');
+        setTimeout(() => c.classList.remove('reveal-bad'), 1400);
+      }
+    });
+    state.ch1Selected.clear();
+    cards.forEach(c => { c.setAttribute('aria-pressed', 'false'); c.querySelector('.opt-check').textContent = ''; });
+    updateCh1Counter();
+    shake($('#panel-ch1 .max-w-3xl'));
+    Dialog
+      .say(EDITOR, `Sai rồi! Hai luận điểm ấy đi ngược tinh thần Nghị quyết 24 — thống nhất là việc cần kíp trước mắt, không thể trì hoãn hay chia cắt thêm. Đọc lại hồ sơ và chọn đi!`)
+      .play();
+  }
+}
+
+/* ============================== MÀN 2 ============================== */
+function resetCh2Cards() {
+  ['tc', 'ph'].forEach(k => {
+    const card = $(`#card-${k}`);
+    card.classList.remove('ring-4', 'ring-gold', 'opacity-60');
+    card.querySelector('.delegate-status').textContent = '▸ Chọn câu hỏi trước, rồi nhấp để phỏng vấn';
+    card.querySelector('.delegate-status').classList.remove('text-green-800');
+  });
+  $('#ch2CaptureWrapper')?.classList.add('hidden');
+  const capBtn = $('#ch2CaptureBtn');
+  if (capBtn) {
+    capBtn.disabled = false;
+    capBtn.textContent = 'Bấm máy khoảnh khắc lịch sử 📸 — Lưu ảnh Hội nghị & Chân dung';
+  }
+}
+
+function buildCh2Questions() {
+  const box = $('#ch2Questions');
+  box.innerHTML = '';
+  CH2_QUESTIONS.forEach(q => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.dataset.qid = q.id;
+    b.setAttribute('aria-pressed', 'false');
+    b.className = 'q-card w-full text-left flex items-start gap-2.5 bg-paper-dark border border-ink/70 px-3 py-2 text-[13px] leading-snug hover:bg-paper-deep transition';
+    b.innerHTML = `<span class="shrink-0 font-display font-black text-flagred">?</span><span class="q-label"></span>`;
+    b.querySelector('.q-label').textContent = q.label;
+    b.addEventListener('click', () => selectQuestion(q.id, b));
+    box.appendChild(b);
+  });
+  setHint('#ch2QHint', '');
+}
+
+function selectQuestion(id, btn) {
+  if (state.ch2Locked) return;
+  if (state.ch2Asked.includes(id)) { Sound.error(); setHint('#ch2QHint', 'Câu hỏi này đã dùng rồi — chọn câu khác!'); return; }
+  Sound.click();
+  state.ch2Question = id;
+  $$('#ch2Questions .q-card').forEach(c => c.setAttribute('aria-pressed', String(c.dataset.qid === id)));
+  setHint('#ch2QHint', 'Đã chốt câu hỏi — giờ nhấp vào một vị đại biểu để phỏng vấn.');
+}
+
+function interview(who) {
+  if (state.ch2Locked || state.ch2Interviewed.includes(who)) {
+    if (state.ch2Interviewed.includes(who) && !state.ch2Locked) {
+      setHint('#ch2Hint', 'Vị này đã trả lời rồi — hãy phỏng vấn người còn lại!');
+      Sound.click();
+    }
+    return;
+  }
+  if (Dialog.typing || Dialog.awaitChoice || Dialog.queue.length > 0) {
+    setHint('#ch2Hint', 'Khoan đã — ghi xong phát biểu hiện tại rồi hãy phỏng vấn tiếp!');
+    return;
+  }
+  if (!state.ch2Question) {
+    setHint('#ch2QHint', 'Hãy chọn một câu hỏi tác nghiệp ở mục ① trước đã!');
+    Sound.error();
+    shake($('#ch2Questions'));
+    return;
+  }
+  const q = CH2_QUESTIONS.find(x => x.id === state.ch2Question);
+  state.ch2Asked.push(q.id);
+  state.ch2Question = null;
+  state.ch2Interviewed.push(who);
+
+  const qBtn = $(`#ch2Questions .q-card[data-qid="${q.id}"]`);
+  if (qBtn) {
+    qBtn.classList.add('used');
+    qBtn.setAttribute('aria-pressed', 'false');
+    qBtn.querySelector('span').textContent = q.good ? '✓' : '·';
+  }
+  setHint('#ch2QHint', '');
+
+  Sound.click();
+  const card = $(`#card-${who}`);
+  card.classList.add('ring-4', 'ring-gold');
+  const st = card.querySelector('.delegate-status');
+  st.textContent = '✓ Đã ghi nhận phát biểu';
+  st.classList.add('text-green-800');
+  setHint('#ch2Hint', '');
+
+  Dialog
+    .say(YOU, q.label)
+    .say(who === 'tc' ? TC : PH, CH2_ANSWERS[who][q.good ? 'good' : 'bad'])
+    .act(afterInterview)
+    .play();
+}
+
+function afterInterview() {
+  if (state.ch2Interviewed.length < 2) {
+    Dialog.say(EDITOR, 'Ghi nhanh vào sổ tay! Còn một vị trưởng đoàn nữa đang chờ cậu phỏng vấn đó.').play();
+    return;
+  }
+  if (state.ch2ChoiceOpened) return;
+  state.ch2ChoiceOpened = true;
+  $$('.delegate-card').forEach(c => c.classList.add('opacity-60'));
+  setHint('#ch2Hint', 'Đã phỏng vấn đủ hai trưởng đoàn — quyết định phương án đưa tin bên dưới.');
+  const goodAsked = state.ch2Asked.some(id => CH2_QUESTIONS.find(q => q.id === id)?.good);
+  const d = Dialog.say(EDITOR,
+    goodAsked
+      ? 'Tuyệt! Câu hỏi của cậu chạm đúng cốt lõi: khâu chính là thống nhất nước nhà VỀ MẶT NHÀ NƯỚC, và con đường là QUỐC HỘI CHUNG do toàn dân bầu ra. Giờ quyết định luận điểm cho bài báo!'
+      : 'Cậu chưa hỏi trúng câu then chốt, nhưng may mà chú đã tóm sẵn ý chính: khâu chính là thống nhất nước nhà VỀ MẶT NHÀ NƯỚC, bằng con đường QUỐC HỘI CHUNG do toàn dân bầu ra. Giờ quyết định luận điểm cho bài báo!');
+  d.ask(buildCh2Choices()).play();
+}
+
+function buildCh2Choices() {
+  return [
+    {
+      id: 'partial',
+      label: 'Hiệp thương từng phần — hai miền thống nhất dần từng lĩnh vực riêng lẻ, giữ nguyên hai bộ máy nhà nước.',
+      run: () => ch2Answer(false, 'Hiệp thương từng phần không xóa được tình trạng hai nhà nước — thể chế vẫn chia cắt, sức mạnh vẫn phân tán. Nghị quyết 24 đã chốt "khâu chính" cơ mà!')
+    },
+    {
+      id: 'election',
+      label: 'Tổng tuyển cử dân chủ trên toàn quốc — toàn dân tham gia bầu ra Quốc hội chung cho cả nước.',
+      run: () => ch2Answer(true)
+    },
+    {
+      id: 'alliance',
+      label: 'Thành lập liên minh hai nhà nước — mỗi miền giữ hiến pháp và chính phủ riêng.',
+      run: () => ch2Answer(false, 'Liên minh hai nhà nước thì non sông vẫn "hai mái", pháp lý vẫn phân ly. Phải là một Quốc hội chung do TOÀN DÂN bầu ra!')
+    }
+  ];
+}
+
+function ch2Answer(correct, feedback) {
+  if (correct) {
+    state.ch2Locked = true;
+    Sound.success();
+    // Mở lại panel Màn 2 và hiển thị nút Bấm máy khoảnh khắc lịch sử
+    openPanel(2);
+    const wrap = $('#ch2CaptureWrapper');
+    if (wrap) wrap.classList.remove('hidden');
+    const capBtn = $('#ch2CaptureBtn');
+    if (capBtn) {
+      capBtn.disabled = false;
+      capBtn.textContent = 'Bấm máy khoảnh khắc lịch sử 📸 — Lưu ảnh Hội nghị & Chân dung';
+      capBtn.className = 'w-full py-3 px-4 bg-flagred text-paper font-black uppercase tracking-wider text-sm sm:text-base border-2 border-flagred-deep hover:bg-flagred-deep active:translate-y-px shadow-[4px_4px_0_rgba(31,41,55,.85)] anim-pulse-ring';
+      capBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+    setHint('#ch2Hint', '🎉 Quyết định lịch sử! Hãy bấm máy lưu lại khoảnh khắc trước khi bước sang Màn 3!');
+
+    Dialog
+      .say(NARR, 'Trích Thông cáo Hội nghị, ngày 21/11/1975: "Cần tổ chức sớm cuộc Tổng tuyển cử trên toàn bộ lãnh thổ Việt Nam để bầu ra Quốc hội chung cho cả nước."')
+      .say(EDITOR, 'Chính xác! Tổng tuyển cử theo nguyên tắc phổ thông, bình đẳng, trực tiếp, bỏ phiếu kín — ý dân là nền móng của thể chế mới.')
+      .say(EDITOR, 'Hãy nhấn nút "Bấm máy khoảnh khắc lịch sử 📸" bên dưới để lưu trọn bộ ảnh Bàn tròn Hội nghị và Chân dung hai vị trưởng đoàn vào túi đồ!')
+      .play();
+  } else {
+    state.ch2Wrong++;
+    Sound.error();
+    shake($('#dialogBox'));
+    Dialog
+      .say(EDITOR, feedback)
+      .say(EDITOR, 'Bình tĩnh đọc lại sổ tay phỏng vấn — hai vị trưởng đoàn đều đã nói rất rõ "khâu chính" và "Quốc hội chung". Chọn lại đi!')
+      .ask(buildCh2Choices())
+      .play();
+  }
+}
+
+/* ============================== MÀN 3 ============================== */
+function buildCh3Panel() {
+  const datesBox = $('#ch3Dates'), evBox = $('#ch3Events');
+  datesBox.innerHTML = ''; evBox.innerHTML = '';
+  state.ch3Matched = 0; state.ch3ActiveDate = null;
+  $('#ch3Matched').textContent = '0/4';
+  setHint('#ch3Hint', '');
+
+  const capBtn = $('#ch3CaptureBtn');
+  if (capBtn) {
+    capBtn.classList.add('hidden');
+    capBtn.disabled = false;
+    capBtn.textContent = 'Bấm máy 📸 — Ngày hội bầu cử';
+  }
+
+  CH3_DATES.forEach(d => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.dataset.dateId = d.id;
+    b.className = 'chip-date w-full text-left px-3 py-2.5 bg-paper-dark border-2 border-ink/70 font-display font-black text-base sm:text-lg';
+    b.textContent = d.label;
+    b.addEventListener('click', () => pickDate(d.id, b));
+    datesBox.appendChild(b);
+  });
+
+  shuffle(CH3_EVENTS).forEach(e => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.dataset.eventId = e.id; b.dataset.dateId = e.dateId;
+    b.className = 'chip-event w-full text-left px-3 py-2.5 bg-paper-dark border-2 border-ink/70 text-[13px] leading-snug';
+    b.innerHTML = `<span class="ev-text"></span>`;
+    b.querySelector('.ev-text').textContent = e.text;
+    b.addEventListener('click', () => pickEvent(e, b));
+    evBox.appendChild(b);
+  });
+}
+
+function pickDate(id, btn) {
+  if (btn.classList.contains('done') || state.ch3Done) return;
+  Sound.click();
+  $$('#ch3Dates .chip-date').forEach(c => c.classList.remove('active'));
+  state.ch3ActiveDate = id;
+  btn.classList.add('active');
+  setHint('#ch3Hint', '');
+}
+
+function pickEvent(ev, btn) {
+  if (btn.classList.contains('done') || state.ch3Done) return;
+  if (!state.ch3ActiveDate) {
+    setHint('#ch3Hint', 'Hãy chọn một mốc thời gian ở cột trái trước.');
+    Sound.error(); return;
+  }
+  if (ev.dateId === state.ch3ActiveDate) {
+    Sound.success();
+    const dateBtn = $$('#ch3Dates .chip-date').find(c => c.dataset.dateId === ev.dateId);
+    btn.classList.add('done'); btn.disabled = true;
+    if (dateBtn) { dateBtn.classList.add('done'); dateBtn.classList.remove('active'); dateBtn.disabled = true; }
+    state.ch3ActiveDate = null;
+    state.ch3Matched++;
+    $('#ch3Matched').textContent = `${state.ch3Matched}/4`;
+    if (state.ch3Matched === 4) completeCh3();
+  } else {
+    state.ch3Mistakes++;
+    Sound.error();
+    shake(btn);
+    setHint('#ch3Hint', `Chưa khớp! Sự kiện này không thuộc mốc đang chọn. (Sai ${state.ch3Mistakes} lần — bị trừ điểm đó!)`);
+    $$('#ch3Dates .chip-date').forEach(c => c.classList.remove('active'));
+    state.ch3ActiveDate = null;
+  }
+}
+
+function completeCh3() {
+  state.ch3Done = true;
+  Sound.bell();
+  const btn = $('#ch3CaptureBtn');
+  if (btn) {
+    btn.classList.remove('hidden');
+    btn.disabled = false;
+    btn.textContent = 'Bấm máy 📸 — Ngày hội bầu cử';
+    btn.className = 'shrink-0 w-full sm:w-auto px-5 py-2.5 bg-flagred text-paper font-bold uppercase tracking-wider text-sm border-2 border-flagred-deep hover:bg-flagred-deep active:translate-y-px shadow-[3px_3px_0_rgba(31,41,55,.85)] anim-pulse-ring';
+  }
+  setHint('#ch3Hint', '🎉 Hoàn hảo! Nhấn "Bấm máy 📸 — Ngày hội bầu cử" để lưu ảnh tư liệu!');
+
+  Dialog
+    .say(NARR, 'Dòng thời gian đã liền mạch: Nghị quyết 24 (9/1975) → Hiệp thương (11/1975) → Tổng tuyển cử (25/4/1976) → Kỳ họp QH khóa VI khai sinh nước CHXHCN Việt Nam (24/6–3/7/1976).')
+    .say(EDITOR, 'Không sai một mốc nào! Ngày 25/4/1976, hơn 23 triệu cử tri đã đi bầu, đạt 98,77%. Nhấn nút "Bấm máy 📸 — Ngày hội bầu cử" để lưu ảnh ngày hội, rồi ta chuẩn bị sang trang sử cuối cùng — Kỳ họp Quốc hội khóa VI!')
+    .play();
+}
+
+/* ============================== MÀN 3B: KỲ HỌP QUỐC HỘI KHÓA VI ============================== */
+function handleCh3bCapture() {
+  const btn = $('#ch3bCaptureBtn');
+  if (btn.disabled) return;
+  btn.disabled = true;
+  btn.classList.remove('anim-pulse-ring');
+  btn.classList.add('opacity-70', 'cursor-not-allowed');
+  btn.textContent = '✓ Đã chụp thành công!';
+  Sound.ensure();
+  capturePhoto('quochoi76');
+
+  const pts = calcCh3b();
+  awardBadge('ch3b');
+  setScore(state.score + pts);
+  saveState();
+
+  Dialog
+    .say(NARR, 'Tháng 7 năm 1976. Kỳ họp thứ nhất Quốc hội khóa VI tuyên bố: nước ta tên là CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM, thủ đô là HÀ NỘI, quốc kỳ là CỜ ĐỎ SAO VÀNG, quốc ca là TIẾN QUÂN CA.')
+    .say(NARR, 'Thành phố Sài Gòn – Gia Định chính thức đổi tên thành THÀNH PHỐ HỒ CHÍ MINH — mang tên vị lãnh tụ kính yêu đã dành cả cuộc đời cho sự nghiệp thống nhất Tổ quốc.')
+    .say(EDITOR, 'Đây là trang sử cuối cùng của hành trình này! Giờ là lúc cậu ngồi vào bàn biên tập — chọn tiêu đề cho bản tin lịch sử rồi xuất bản!')
+    .act(() => {
+      closePanels();
+      gotoHeadline();
+    })
+    .play();
+}
+
+function buildCh3bPanel() {
+  const box = $('#decreeCards');
+  box.innerHTML = '';
+  if (!state.ch3bOpenedIds) state.ch3bOpenedIds = [];
+  state.ch3bDecreesOpened = state.ch3bOpenedIds.length;
+
+  const captureBtn = $('#ch3bCaptureBtn');
+  if (state.bag.some(p => p.key === 'quochoi76')) {
+    captureBtn.disabled = true;
+    captureBtn.textContent = '✓ Đã chụp thành công!';
+    captureBtn.className = 'shrink-0 px-5 py-2.5 bg-paper-deep text-ink-faint font-bold uppercase tracking-wider text-sm border-2 border-ink/40 cursor-not-allowed opacity-50 shadow-[3px_3px_0_rgba(31,41,55,.4)]';
+    setHint('#ch3bHint', '✓ Đã hoàn thành tác nghiệp tại Quốc hội khóa VI.');
+  } else if (state.ch3bDecreesOpened >= 5) {
+    captureBtn.disabled = false;
+    captureBtn.textContent = 'Bấm máy 📸 — Lưu ảnh Quốc hội khóa VI';
+    captureBtn.className = 'shrink-0 px-5 py-2.5 bg-flagred text-paper font-bold uppercase tracking-wider text-sm border-2 border-flagred-deep hover:bg-flagred-deep active:translate-y-px shadow-[3px_3px_0_rgba(31,41,55,.85)] anim-pulse-ring';
+    setHint('#ch3bHint', '🎉 Đã khám phá đủ 5 quyết sách! Nhấn "Bấm máy 📸" để ghi lại khoảnh khắc lịch sử!');
+  } else {
+    captureBtn.disabled = true;
+    captureBtn.textContent = 'Bấm máy 📸';
+    captureBtn.className = 'shrink-0 px-5 py-2.5 bg-paper-deep text-ink-faint font-bold uppercase tracking-wider text-sm border-2 border-ink/40 cursor-not-allowed opacity-50 shadow-[3px_3px_0_rgba(31,41,55,.4)]';
+    setHint('#ch3bHint', 'Khám phá tất cả 5 quyết sách để mở khóa nút bấm máy.');
+  }
+
+  CH3B_DECREES.forEach(dec => {
+    const card = document.createElement('div');
+    card.className = 'decree-card border-2 border-ink/70 bg-paper-dark p-3 cursor-pointer hover:border-flagred hover:bg-paper transition-all';
+    card.dataset.decId = dec.id;
+    card.setAttribute('role', 'button');
+    card.setAttribute('tabindex', '0');
+    card.innerHTML = `
+      <div class="decree-front flex items-center gap-2">
+        <span class="text-2xl shrink-0">${dec.icon}</span>
+        <div>
+          <div class="font-display font-black text-base">${dec.front}</div>
+          <div class="text-[11px] text-ink-faint">Nhấp để xem quyết sách</div>
+        </div>
+        <span class="ml-auto text-ink-faint text-lg">▸</span>
+      </div>
+      <div class="decree-back text-sm leading-relaxed whitespace-pre-line"></div>
+    `;
+
+    const backEl = card.querySelector('.decree-back');
+
+    const revealCard = () => {
+      if (card.classList.contains('revealed')) return;
+      Sound.click();
+      backEl.classList.remove('hidden');
+      card.classList.add('revealed');
+      backEl.innerHTML = dec.back;
+      if (!state.ch3bOpenedIds.includes(dec.id)) {
+        state.ch3bOpenedIds.push(dec.id);
+      }
+      state.ch3bDecreesOpened = state.ch3bOpenedIds.length;
+      saveState();
+      if (state.ch3bDecreesOpened >= 5) {
+        state.ch3bCaptureReady = true;
+        const btn = $('#ch3bCaptureBtn');
+        btn.disabled = false;
+        btn.textContent = 'Bấm máy 📸 — Lưu ảnh Quốc hội khóa VI';
+        btn.className = 'shrink-0 px-5 py-2.5 bg-flagred text-paper font-bold uppercase tracking-wider text-sm border-2 border-flagred-deep hover:bg-flagred-deep active:translate-y-px shadow-[3px_3px_0_rgba(31,41,55,.85)] anim-pulse-ring';
+        setHint('#ch3bHint', '🎉 Đã khám phá đủ 5 quyết sách! Nhấn "Bấm máy 📸" để ghi lại khoảnh khắc lịch sử!');
+        Sound.success();
+      }
+    };
+
+    if (state.ch3bOpenedIds.includes(dec.id)) {
+      backEl.classList.remove('hidden');
+      card.classList.add('revealed');
+      backEl.innerHTML = dec.back;
+    }
+
+    card.addEventListener('click', revealCard);
+    card.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        revealCard();
+      }
+    });
+    box.appendChild(card);
+  });
+}
+
+/* ============================== CHỌN HEADLINE ============================== */
+function buildHeadlinePanel() {
+  const box = $('#headlineOptions');
+  box.innerHTML = '';
+  state.selectedHeadline = null;
+  setHint('#headlineHint', 'Chọn một góc nhìn để giật tít bản tin lịch sử của bạn.');
+
+  const publishBtn = $('#btnPublish');
+  publishBtn.disabled = true;
+  publishBtn.className = 'shrink-0 px-6 py-3 bg-paper-deep text-ink-faint font-black uppercase tracking-wider text-sm border-2 border-ink/40 cursor-not-allowed opacity-60 shadow-[3px_3px_0_rgba(31,41,55,.4)]';
+
+  HEADLINES.forEach(h => {
+    const card = document.createElement('button');
+    card.type = 'button';
+    card.className = 'headline-card w-full text-left border-2 border-ink/70 bg-paper-dark px-4 py-3 text-sm leading-snug';
+    card.setAttribute('aria-pressed', 'false');
+    card.dataset.hid = h.id;
+    card.innerHTML = `<span class="block font-body leading-snug">${h.label}</span>`;
+    card.addEventListener('click', () => {
+      Sound.click();
+      state.selectedHeadline = h;
+      $$('#headlineOptions .headline-card').forEach(c => c.setAttribute('aria-pressed', String(c.dataset.hid === h.id)));
+      setHint('#headlineHint', `Đã chọn: "${h.headline}"`);
+      // Mở khóa nút Xuất bản
+      publishBtn.disabled = false;
+      publishBtn.className = 'shrink-0 px-6 py-3 bg-flagred text-paper font-black uppercase tracking-wider text-sm border-2 border-flagred-deep hover:bg-flagred-deep active:translate-y-px shadow-[3px_3px_0_rgba(31,41,55,.85)]';
+    });
+    box.appendChild(card);
+  });
+}
+
+/* ============================== Điều phối màn ============================== */
+function gotoChapter(ch) {
+  state.screen = `ch${ch}`;
+  Dialog.clearQueue();
+  closePanels();
+  showScene(ch);
+  updateProgress(ch === '3b' ? 4 : ch);
+  saveState();
+
+  if (ch === 1) {
+    buildCh1Panel();
+    Dialog
+      .say(NARR, 'Sài Gòn, tháng 11 năm 1975. Sáu tháng sau ngày miền Nam hoàn toàn giải phóng, cờ đỏ sao vàng đã rợp bóng từ Hiền Lương đến Cà Mau…')
+      .say(NARR, '…nhưng trên giấy tờ pháp lý, đất nước vẫn còn HAI CHÍNH THỂ: miền Bắc là VIỆT NAM DÂN CHỦ CỘNG HÒA (VNDCCH), miền Nam là CHÍNH PHỦ CÁCH MẠNG LÂM THỜI CỘNG HÒA MIỀN NAM VIỆT NAM (CHMNVN).')
+      .say(EDITOR, `${state.playerName}! Bỏ máy ảnh xuống nghe chú dặn. Hội nghị lớn sắp khai mạc, tòa soạn cử cậu vào tổ tư liệu lịch sử.`)
+      .say(EDITOR, 'Việc đầu tiên: Nghị quyết Trung ương 24 tháng 9 vừa rồi đã đề ra chủ trương HOÀN THÀNH THỐNG NHẤT ĐẤT NƯỚC VỀ MẶT NHÀ NƯỚC. Cậu phải phân loại cho đúng: vì sao đây là nhiệm vụ cấp bách?')
+      .act(() => { openPanel(1); })
+      .play();
+  }
+
+  if (ch === 2) {
+    resetCh2Cards();
+    buildCh2Questions();
+    state.ch2Interviewed = [];
+    state.ch2ChoiceOpened = false;
+    state.ch2Question = null;
+    setHint('#ch2Hint', '');
+    Dialog
+      .say(NARR, 'Giữa Sài Gòn, Hội nghị Hiệp thương chính trị thống nhất Tổ quốc khai mạc — kéo dài 6 ngày, từ 15 đến 21/11/1975.')
+      .say(NARR, 'Hai đoàn đại biểu nhân dân Nam – Bắc gặp nhau quanh bàn tròn: đoàn VNDCCH do đồng chí Trường Chinh dẫn đầu, đoàn CHMNVN do đồng chí Phạm Hùng dẫn đầu.')
+      .say(EDITOR, 'Cơ hội nghìn năm có một! Mở sổ tay ra: CHỌN CÂU HỎI tác nghiệp cho sắc bén, rồi phỏng vấn cả HAI vị trưởng đoàn. Sau phỏng vấn nhớ nhấn "Bấm máy 📸" để lưu chân dung!')
+      .act(() => openPanel(2))
+      .play();
+  }
+
+  if (ch === 3) {
+    buildCh3Panel();
+    Dialog
+      .say(NARR, 'Mùa xuân 1976. Khắp phố phường rợp cờ hoa, loa phát thanh vang danh sách ứng cử viên — cả nước hướng về ngày Tổng tuyển cử 25/4/1976 bầu Quốc hội chung khóa VI.')
+      .say(EDITOR, 'Số báo đặc biệt phải có "dòng thời gian thống nhất". Cậu sắp xếp lại hồ sơ tư liệu đi: 4 mốc thời gian, 4 sự kiện — nhầm một ngày là hỏng cả trang sử đó!')
+      .act(() => openPanel(3))
+      .play();
+  }
+
+  if (ch === '3b') {
+    buildCh3bPanel();
+    Dialog
+      .say(NARR, 'Hà Nội, tháng 6 năm 1976. 500 đại biểu Quốc hội từ hai miền lần đầu tiên họp chung trong một ngôi nhà thống nhất.')
+      .say(NARR, 'Kỳ họp thứ nhất Quốc hội khóa VI diễn ra từ 24/6 đến 3/7/1976 — đây là kỳ họp lịch sử, lần đầu tiên đại diện toàn thể nhân dân Việt Nam cùng quyết định vận mệnh quốc gia.')
+      .say(EDITOR, 'Cậu vừa đặt chân đến Thủ đô Hà Nội! Nhấp vào từng thẻ để khám phá 5 quyết sách trọng đại của kỳ họp, rồi bấm máy ghi lại khoảnh khắc lịch sử!')
+      .act(() => openPanel('3b'))
+      .play();
+  }
+}
+
+function gotoHeadline() {
+  state.screen = 'headline';
+  Dialog.clearQueue();
+  closePanels();
+  showScene('3b'); // Giữ cảnh QH
+  updateProgress(4);
+  buildHeadlinePanel();
+  openPanel('headline');
+  Dialog
+    .say(EDITOR, 'Phóng viên ơi! Tất cả tư liệu đã đủ — ảnh, sổ tay phỏng vấn, dòng thời gian. Giờ là lúc của cậu: chọn một tiêu đề để đời cho bản tin lịch sử này!')
+    .play();
+}
+
+function gotoEnd() {
+  state.screen = 'end';
+  Dialog.clearQueue();
+  closePanels();
+  toggleBag(false);
+  updateProgress(4);
+
+  const total = calcCh1() + calcCh2() + calcCh3() + calcCh3b();
+  setScore(total, true);
+
+  $('#endName').textContent = state.playerName.toUpperCase();
+  $('#endScore').textContent = total;
+  $('#endRank').textContent = rankFor(total);
+  $('#endDetail').textContent = `Chi tiết: Màn 1 ${calcCh1()}/30 · Màn 2 ${calcCh2()}/40 · Màn 3 ${calcCh3()}/20 · Màn 4 ${calcCh3b()}/10 (trừ điểm theo số lần sai)`;
+
+  // Hiển thị Headline đã chọn
+  const headlineEl = $('#endHeadline');
+  if (state.selectedHeadline) {
+    headlineEl.innerHTML = `<span class="block font-display font-black text-flagred text-sm sm:text-base uppercase leading-tight">${state.selectedHeadline.headline}</span><span class="block text-ink-soft text-xs mt-0.5 italic">${state.selectedHeadline.subtitle}</span>`;
+  } else {
+    headlineEl.innerHTML = '"Nước Việt Nam là một — Dân tộc Việt Nam là một"';
+  }
+
+  const box = $('#endBadges');
+  box.innerHTML = '';
+  state.badges.forEach(b => {
+    const s = document.createElement('span');
+    s.className = 'seal bg-paper px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide';
+    s.textContent = `★ ${b.name}`;
+    box.appendChild(s);
+  });
+
+  // Ống kính tư liệu: trưng bày ảnh đã bấm máy
+  const gal = $('#endPhotos');
+  gal.innerHTML = '';
+  $('#endPhotoCount').textContent = state.bag.length;
+  if (state.bag.length === 0) {
+    gal.innerHTML = '<p class="col-span-full text-xs text-ink-faint text-center py-4">Không có bức ảnh nào — lần sau nhớ bấm máy nhé, phóng viên!</p>';
+  } else {
+    state.bag.forEach((p, i) => {
+      const wrap = document.createElement('div');
+      wrap.className = 'bg-paper-dark border border-ink/60 p-1';
+      wrap.appendChild(photoFrame(p.key, { cls: 'w-full h-24 sm:h-28' }));
+      const cap = document.createElement('p');
+      cap.className = 'text-[9px] sm:text-[10px] leading-tight text-ink-soft pt-1 text-center';
+      cap.textContent = `Ảnh ${String(i + 1).padStart(2, '0')} — ${p.caption}`;
+      wrap.appendChild(cap);
+      gal.appendChild(wrap);
+    });
+  }
+
+  clearSavedState(); // Xóa save sau khi hoàn thành
+  $('#endScreen').classList.remove('hidden');
+  $('#endScreen').classList.add('flex');
+  Sound.success();
+  setTimeout(() => Sound.stamp(), 500);
+}
+
+function restartGame() {
+  clearSavedState();
+  Object.assign(state, {
+    screen: 'intro', score: 0, badges: [], bag: [],
+    selectedHeadline: null,
+    ch1Wrong: 0, ch1Locked: false, ch1Selected: new Set(),
+    ch1CaptureReady: false,
+    ch2Wrong: 0, ch2Locked: false, ch2Interviewed: [], ch2ChoiceOpened: false,
+    ch2Question: null, ch2Asked: [],
+    ch3Mistakes: 0, ch3Matched: 0, ch3ActiveDate: null, ch3Done: false,
+    ch3bDecreesOpened: 0, ch3bOpenedIds: [], ch3bCaptureReady: false
+  });
+  Dialog.clearQueue();
+  closePanels();
+  toggleBag(false);
+  $$('.scene').forEach(s => { s.classList.add('hidden'); s.classList.remove('flex'); });
+  $('#badgeRow').innerHTML = '';
+  $('#stampLayer').classList.add('hidden');
+  setScore(0, false);
+  updateBagCount(false);
+  renderBag();
+  updateProgress(1);
+  $('#endScreen').classList.add('hidden');
+  $('#endScreen').classList.remove('flex');
+  $('#summaryModal').classList.add('hidden');
+  $('#summaryModal').classList.remove('flex');
+  $('#introScreen').classList.remove('hidden');
+  $('#playerName').value = '';
+  $('#playerName').focus();
+
+  // Reset các nút tương tác
+  const ch1Sub = $('#ch1Submit');
+  if (ch1Sub) { ch1Sub.classList.remove('hidden', 'opacity-40', 'cursor-not-allowed'); ch1Sub.disabled = false; ch1Sub.textContent = 'Lưu vào hồ sơ ✒'; }
+  const ch1Cap = $('#ch1CaptureBtn');
+  if (ch1Cap) { ch1Cap.classList.add('hidden'); ch1Cap.disabled = false; ch1Cap.textContent = 'Bấm máy 📸 — Lưu ảnh tư liệu vào túi đồ'; }
+  $('#ch2CaptureWrapper')?.classList.add('hidden');
+  const ch2Btn = $('#ch2CaptureBtn');
+  if (ch2Btn) { ch2Btn.disabled = false; ch2Btn.textContent = 'Bấm máy khoảnh khắc lịch sử 📸 — Lưu ảnh Hội nghị & Chân dung'; }
+  const ch3Btn = $('#ch3CaptureBtn');
+  if (ch3Btn) { ch3Btn.classList.add('hidden'); ch3Btn.disabled = false; ch3Btn.textContent = 'Bấm máy 📸 — Ngày hội bầu cử'; }
+  const ch3bBtn = $('#ch3bCaptureBtn');
+  if (ch3bBtn) { ch3bBtn.disabled = true; ch3bBtn.textContent = 'Bấm máy 📸'; ch3bBtn.className = 'shrink-0 px-5 py-2.5 bg-paper-deep text-ink-faint font-bold uppercase tracking-wider text-sm border-2 border-ink/40 cursor-not-allowed opacity-50 shadow-[3px_3px_0_rgba(31,41,55,.4)]'; }
+  const pubBtn = $('#btnPublish');
+  if (pubBtn) { pubBtn.disabled = true; pubBtn.className = 'shrink-0 px-6 py-3 bg-paper-deep text-ink-faint font-black uppercase tracking-wider text-sm border-2 border-ink/40 cursor-not-allowed opacity-60 shadow-[3px_3px_0_rgba(31,41,55,.4)]'; }
+
+  checkResume();
+}
+
+/* ============================== Boot & Bindings ============================== */
+function startGame(fresh = true) {
+  if (fresh) clearSavedState();
+  const name = $('#playerName').value.trim();
+  state.playerName = name || 'Phóng Viên Trẻ';
+  Sound.ensure();
+  if (Sound.bgmOn) Sound.startBgm();
+  $('#introScreen').classList.add('hidden');
+  gotoChapter(1);
+}
+
+function resumeGame(saved) {
+  applySavedState(saved);
+  const name = state.playerName || $('#playerName').value.trim() || 'Phóng Viên Trẻ';
+  state.playerName = name;
+  Sound.ensure();
+  if (Sound.bgmOn) Sound.startBgm();
+  $('#introScreen').classList.add('hidden');
+
+  // Khôi phục điểm và huy hiệu
+  setScore(state.score, false);
+  updateBagCount(false);
+  renderBag();
+  state.badges.forEach(b => {
+    const row = $('#badgeRow');
+    const chip = document.createElement('span');
+    chip.className = 'text-[9px] font-bold uppercase tracking-wide border border-flagred text-flagred bg-paper px-1.5 py-px rounded-full';
+    chip.textContent = `★ ${b.name}`;
+    row.appendChild(chip);
+  });
+
+  // Điều hướng đến màn đang chơi
+  const sc = state.screen;
+  if (sc === 'ch1') gotoChapter(1);
+  else if (sc === 'ch2') gotoChapter(2);
+  else if (sc === 'ch3') gotoChapter(3);
+  else if (sc === 'ch3b') gotoChapter('3b');
+  else if (sc === 'headline') gotoHeadline();
+  else gotoChapter(1);
+}
+
+function checkResume() {
+  const saved = loadSavedState();
+  const bar = $('#resumeBar');
+  if (saved && saved.screen && saved.screen !== 'intro' && saved.screen !== 'end') {
+    bar.classList.remove('hidden');
+    bar.classList.add('flex');
+  } else {
+    bar.classList.add('hidden');
+    bar.classList.remove('flex');
+  }
+}
+
+function bindEvents() {
+  // Bắt đầu game
+  $('#btnStart').addEventListener('click', () => { Sound.ensure(); Sound.click(); startGame(true); });
+  $('#playerName').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); Sound.ensure(); Sound.click(); startGame(true); }
+    e.stopPropagation();
+  });
+
+  // Resume / Fresh
+  $('#btnResume').addEventListener('click', () => {
+    Sound.ensure(); Sound.click();
+    const saved = loadSavedState();
+    if (saved) resumeGame(saved);
+    else startGame(true);
+  });
+  $('#btnFresh').addEventListener('click', () => {
+    Sound.ensure(); Sound.click();
+    clearSavedState();
+    $('#resumeBar').classList.add('hidden');
+    startGame(true);
+  });
+
+  // Dialog
+  Dialog.els.zone.addEventListener('click', () => Dialog.advance());
+  Dialog.els.zone.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); Dialog.advance(); }
+  });
+  $('#btnContinue').addEventListener('click', (e) => { e.stopPropagation(); Sound.click(); Dialog.advance(); });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      const tag = document.activeElement?.tagName;
+      if (tag === 'INPUT' || tag === 'BUTTON') return;
+      if (!$('#introScreen').classList.contains('hidden')) return;
+      e.preventDefault();
+      Dialog.advance();
+    }
+    if (e.key === 'Escape') {
+      if (!$('#summaryModal').classList.contains('hidden')) toggleSummary(false);
+      else toggleBag(false);
+    }
+  });
+
+  // Màn 1
+  $('#ch1Submit').addEventListener('click', () => { Sound.click(); submitCh1(); });
+  $('#ch1CaptureBtn').addEventListener('click', () => {
+    const capBtn = $('#ch1CaptureBtn');
+    if (capBtn.disabled) return;
+    capBtn.disabled = true;
+    capBtn.classList.remove('anim-pulse-ring');
+    capBtn.classList.add('opacity-70', 'cursor-not-allowed');
+    capBtn.textContent = '✓ Đã chụp thành công!';
+    Sound.ensure();
+    capturePhoto('hanoi');
+    setTimeout(() => {
+      capturePhoto('saigon');
+    }, 450);
+    setTimeout(() => {
+      closePanels();
+      gotoChapter(2);
+    }, 1600);
+  });
+
+  // Màn 2
+  $('#card-tc').addEventListener('click', () => interview('tc'));
+  $('#card-ph').addEventListener('click', () => interview('ph'));
+  ['card-tc', 'card-ph'].forEach(id => {
+    const el = $(`#${id}`);
+    const who = id === 'card-tc' ? 'tc' : 'ph';
+    el.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        interview(who);
+      }
+    });
+  });
+  $('#ch2CaptureBtn').addEventListener('click', () => {
+    const btn = $('#ch2CaptureBtn');
+    if (btn.disabled) return;
+    btn.disabled = true;
+    btn.classList.remove('anim-pulse-ring');
+    btn.classList.add('opacity-70', 'cursor-not-allowed');
+    btn.textContent = '✓ Đã chụp thành công!';
+    Sound.ensure();
+
+    capturePhoto('hoinghi');
+    setTimeout(() => capturePhoto('truongchinh'), 450);
+    setTimeout(() => capturePhoto('phamhung'), 900);
+
+    const pts = calcCh2();
+    awardBadge('ch2');
+    setScore(state.score + pts);
+    saveState();
+
+    setTimeout(() => {
+      closePanels();
+      gotoChapter(3);
+    }, 2200);
+  });
+
+  // Màn 3
+  $('#ch3CaptureBtn').addEventListener('click', () => {
+    const btn = $('#ch3CaptureBtn');
+    if (btn.disabled) return;
+    btn.disabled = true;
+    btn.classList.remove('anim-pulse-ring');
+    btn.classList.add('opacity-70', 'cursor-not-allowed');
+    btn.textContent = '✓ Đã chụp thành công!';
+    Sound.ensure();
+    capturePhoto('baucu');
+    const pts = calcCh3();
+    awardBadge('ch3');
+    setScore(state.score + pts);
+    saveState();
+    setTimeout(() => {
+      closePanels();
+      gotoChapter('3b');
+    }, 1500);
+  });
+
+  // Màn 3b
+  $('#ch3bCaptureBtn').addEventListener('click', handleCh3bCapture);
+
+  // Màn Headline (Xuất bản)
+  $('#btnPublish').addEventListener('click', () => {
+    if (!state.selectedHeadline) return;
+    Sound.click();
+    closePanels();
+    gotoEnd();
+  });
+
+  // Túi đồ phóng viên
+  $('#btnBag').addEventListener('click', () => { Sound.click(); toggleBag(); });
+  $('#btnCloseBag').addEventListener('click', () => { Sound.click(); toggleBag(false); });
+
+  // Màn kết
+  $('#btnPrint').addEventListener('click', () => { Sound.click(); window.print(); });
+  $('#btnReplay').addEventListener('click', () => { Sound.click(); restartGame(); });
+  $('#btnSummary').addEventListener('click', () => { Sound.click(); toggleSummary(true); });
+  $('#btnCloseSummary').addEventListener('click', () => { Sound.click(); toggleSummary(false); });
+  $('#summaryModal').addEventListener('click', (e) => { if (e.target.id === 'summaryModal') toggleSummary(false); });
+
+  // Âm thanh
+  $('#btnSfx').addEventListener('click', () => {
+    Sound.ensure();
+    const on = Sound.toggleSfx();
+    $('#sfxIcon').textContent = on ? '🔔' : '🔕';
+    $('#btnSfx').setAttribute('aria-pressed', String(on));
+    if (on) Sound.click();
+  });
+  $('#btnBgm').addEventListener('click', () => {
+    Sound.ensure();
+    const on = Sound.toggleBgm();
+    $('#bgmIcon').classList.toggle('opacity-30', !on);
+    $('#btnBgm').setAttribute('aria-pressed', String(on));
+  });
+
+  // Tốc độ thoại (header)
+  $('#speedSlow').addEventListener('click', () => { Sound.ensure(); Sound.click(); setSpeed('slow'); });
+  $('#speedMed').addEventListener('click', () => { Sound.ensure(); Sound.click(); setSpeed('med'); });
+  $('#speedFast').addEventListener('click', () => { Sound.ensure(); Sound.click(); setSpeed('fast'); });
+
+  // Tốc độ thoại (intro screen, mobile)
+  $('#introSpeedSlow').addEventListener('click', () => { Sound.ensure(); Sound.click(); setSpeed('slow'); });
+  $('#introSpeedMed').addEventListener('click', () => { Sound.ensure(); Sound.click(); setSpeed('med'); });
+  $('#introSpeedFast').addEventListener('click', () => { Sound.ensure(); Sound.click(); setSpeed('fast'); });
+
+  // Unlock AudioContext
+  document.addEventListener('pointerdown', function unlock() {
+    Sound.ensure();
+    document.removeEventListener('pointerdown', unlock);
+  }, { once: true });
+}
+
+function toggleSummary(show) {
+  const m = $('#summaryModal');
+  if (show === undefined) show = m.classList.contains('hidden');
+  m.classList.toggle('hidden', !show);
+  m.classList.toggle('flex', show);
+  if (show) $('#btnCloseSummary').focus();
+}
+
+/* ---- Gắn khung ảnh tư liệu cố định vào sân khấu (một lần khi boot) ---- */
+function mountScenePhotos() {
+  $('#ph-hanoi').appendChild(photoFrame('hanoi', { cls: 'w-full h-full', eager: true }));
+  $('#ph-saigon').appendChild(photoFrame('saigon', { cls: 'w-full h-full', eager: true }));
+  $('#ph-hoinghi').appendChild(photoFrame('hoinghi', { cls: 'w-full h-full' }));
+  $('#ph-baucu').appendChild(photoFrame('baucu', { cls: 'w-full h-full' }));
+  $('#por-tc').appendChild(photoFrame('truongchinh', { cls: 'w-full h-full', round: true, eager: true }));
+  $('#por-ph').appendChild(photoFrame('phamhung', { cls: 'w-full h-full', round: true, eager: true }));
+}
+
+/* ---- Khôi phục tốc độ đã lưu ---- */
+function loadSpeedPreference() {
+  try {
+    const saved = localStorage.getItem('htnht_speed');
+    if (saved) setSpeed(saved);
+  } catch(e) {}
+}
+
+// ===== Khởi động =====
+mountScenePhotos();
+preloadArchive();
+loadSpeedPreference();
+updateProgress(1);
+setScore(0, false);
+renderBag();
+buildCh1Panel();
+checkResume();
+bindEvents();
+</script>
+</body>
+</html>
